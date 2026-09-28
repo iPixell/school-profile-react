@@ -1,81 +1,55 @@
-export default function Footer() {
-  return (
-    <footer className="bg-slate-950 text-white">
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 lg:grid-cols-3 lg:px-10">
-        {/* School */}
-        <div>
-          <div className="mb-5 flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-xs font-bold text-slate-950">
-              LOGO
-            </div>
+function Footer() {
+ return (
+  <footer className="bg-amber-700 text-white">
+   <div className="mx-auto grid max-w-7xl gap-10 px-6 py-12 md:grid-cols-3">
+    <div className="flex items-center gap-4">
+     <div className="h-12 w-12 rounded-full bg-gray-200" />
 
-            <div>
-              <h3 className="font-bold">NAMA SEKOLAH</h3>
-              <p className="text-sm text-slate-400">
-                School Profile
-              </p>
-            </div>
-          </div>
+     <span className="text-lg font-bold">
+      SD NEGERI
+      <br />
+      BAROS 3
+     </span>
+    </div>
 
-          <p className="max-w-sm text-sm leading-6 text-slate-400">
-            Informasi resmi sekolah mengenai profil, kegiatan,
-            prestasi, fasilitas, dan layanan pendidikan.
-          </p>
-        </div>
+    <div>
+     <h3 className="mb-5 font-semibold">Kontak Kami</h3>
 
-        {/* Contact */}
-        <div>
-          <h3 className="mb-5 text-lg font-semibold">Kontak</h3>
+     <div className="space-y-3 text-sm">
+      <p>Alamat belum tersedia</p>
+      <p>Nomor telepon belum tersedia</p>
+      <p>Email belum tersedia</p>
+     </div>
+    </div>
 
-          <div className="space-y-3 text-sm text-slate-400">
-            <p>Alamat sekolah</p>
-            <p>Telepon: -</p>
-            <p>Email: -</p>
-            <p>WhatsApp: -</p>
-          </div>
-        </div>
+    <div>
+     <h3 className="mb-5 font-semibold">Ikuti Kami</h3>
 
-        {/* Social Media */}
-        <div>
-          <h3 className="mb-5 text-lg font-semibold">Media Sosial</h3>
+     <div className="flex gap-3">
+      <a href="#" aria-label="Instagram">
+       Instagram
+      </a>
 
-          <div className="space-y-3 text-sm text-slate-400">
-            <a
-              href="#"
-              className="block transition hover:text-white"
-            >
-              Instagram
-            </a>
+      <a href="#" aria-label="Facebook">
+       Facebook
+      </a>
 
-            <a
-              href="#"
-              className="block transition hover:text-white"
-            >
-              Facebook
-            </a>
+      <a href="#" aria-label="YouTube">
+       YouTube
+      </a>
 
-            <a
-              href="#"
-              className="block transition hover:text-white"
-            >
-              YouTube
-            </a>
+      <a href="#" aria-label="WhatsApp">
+       WhatsApp
+      </a>
+     </div>
+    </div>
+   </div>
 
-            <a
-              href="#"
-              className="block transition hover:text-white"
-            >
-              WhatsApp
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div className="border-t border-white/10">
-        <div className="mx-auto max-w-7xl px-5 py-5 text-center text-sm text-slate-500 sm:px-8 lg:px-10">
-          © {new Date().getFullYear()} Nama Sekolah. All rights reserved.
-        </div>
-      </div>
-    </footer>
-  );
+   <div className="border-t border-white/20 py-3 text-center text-xs">
+    © 2026 SD Negeri Baros 3
+   </div>
+  </footer>
+ );
 }
+
+export default Footer;

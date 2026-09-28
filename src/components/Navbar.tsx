@@ -1,6 +1,6 @@
+import React, { useState } from 'react';
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from 'react-router-dom';
 
 const navItems = [
   { label: "Home", path: "/" },
@@ -11,68 +11,75 @@ const navItems = [
   { label: "Kontak Kami", path: "/kontak" },
 ];
 
-export default function Navbar() {
+function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-white">
-      <div className="mx-auto flex h-[88px] max-w-[1440px] items-center justify-between px-6 md:px-10 lg:px-16">
-        <Link
-          to="/"
-          onClick={() => setIsOpen(false)}
-          className="flex items-center gap-3"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
-            LOGO
-          </div>
+    <header className="border-b border-gray-100 bg-white">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+        <NavLink to="/" className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-gray-200" />
 
-          <div>
-            <p className="text-sm font-bold tracking-wide text-slate-900">
-              NAMA SEKOLAH
-            </p>
+          <span className="text-sm font-bold">
+            SD NEGERI BAROS 3
+          </span>
+        </NavLink>
 
-            <p className="text-xs text-slate-500">
-              School Profile
-            </p>
-          </div>
-        </Link>
-
-        <nav className="hidden items-center gap-8 lg:flex">
+        {/* Desktop */}
+        <nav className="hidden items-center gap-7 md:flex">
           {navItems.map((item) => (
-            <Link
+            <NavLink
               key={item.path}
               to={item.path}
-              className="text-[14px] font-medium text-slate-700 transition hover:text-slate-950"
+              className={({ isActive }) =>
+                `text-sm font-medium ${
+                  isActive
+                    ? "text-amber-600"
+                    : "text-gray-700 hover:text-amber-600"
+                }`
+              }
             >
               {item.label}
-            </Link>
+            </NavLink>
           ))}
         </nav>
 
+        {/* Mobile */}
         <button
           type="button"
-          onClick={() => setIsOpen((value) => !value)}
-          className="rounded-lg p-2 text-slate-900 hover:bg-slate-100 lg:hidden"
-          aria-label="Menu"
+          className="md:hidden"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label="Toggle menu"
         >
           {isOpen ? <X size={25} /> : <Menu size={25} />}
         </button>
       </div>
 
+      {/* Mobile menu */}
       {isOpen && (
-        <nav className="border-t border-slate-100 bg-white px-6 py-3 shadow-lg lg:hidden">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setIsOpen(false)}
-              className="block border-b border-slate-100 py-4 text-sm font-medium text-slate-700 last:border-0"
-            >
-              {item.label}
-            </Link>
-          ))}
+        <nav className="border-t border-gray-100 px-6 py-4 md:hidden">
+          <div className="flex flex-col gap-4">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                onClick={() => setIsOpen(false)}
+                className={({ isActive }) =>
+                  `text-sm font-medium ${
+                    isActive
+                      ? "text-amber-600"
+                      : "text-gray-700"
+                  }`
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
         </nav>
       )}
     </header>
   );
 }
+
+export default Navbar;

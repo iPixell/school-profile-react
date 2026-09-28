@@ -1,17 +1,19 @@
-import { Outlet } from "react-router-dom";
+import { Outlet } from 'react-router-dom';
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-export default function PublicLayout() {
-  return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
+function PublicLayout() {
+ return (
+  <div className="min-h-screen flex flex-col">
+   <Navbar />
 
-      <main>
-        <Outlet />
-      </main>
+   <main className="flex-1">
+    <Outlet />
+   </main>
 
-      <Footer />
-    </div>
-  );
+   <Footer />
+  </div>
+ );
 }
+
+export default PublicLayout;

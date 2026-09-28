@@ -1,185 +1,120 @@
-import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+function Home() {
+ return (
+  <main>
+   {/* Hero */}
+   <section className="relative h-[260px] bg-gray-300 sm:h-[300px] md:h-[350px]">
+    <div className="mx-auto flex h-full max-w-7xl items-center px-6">
+     <div className="text-white">
+      <p className="mb-2 text-sm sm:text-base">Selamat Datang di</p>
 
-const mockSchool = {
-  name: "Nama Sekolah",
-  description:
-    "Membangun generasi unggul, berkarakter, dan berprestasi melalui pendidikan berkualitas.",
-  vision:
-    "Menjadi sekolah unggul yang menghasilkan peserta didik berkarakter, berprestasi, dan siap menghadapi masa depan.",
-  mission:
-    "Menyelenggarakan pendidikan berkualitas, mengembangkan potensi peserta didik, serta membangun karakter dan prestasi.",
-};
+      <h1 className="text-2xl font-bold sm:text-3xl md:text-4xl">
+       SD NEGERI BAROS 3
+      </h1>
 
-const mockAchievements = [
-  {
-    id: "1",
-    name: "Kompetisi Sains Nasional",
-    studentName: "Nama Siswa 1",
-    rank: "Juara 1",
-    level: "Nasional",
-    year: 2026,
-  },
-  {
-    id: "2",
-    name: "Olimpiade Matematika",
-    studentName: "Nama Siswa 2",
-    rank: "Juara 2",
-    level: "Provinsi",
-    year: 2026,
-  },
-  {
-    id: "3",
-    name: "Lomba Kreativitas Siswa",
-    studentName: "Nama Siswa 3",
-    rank: "Juara 1",
-    level: "Kota",
-    year: 2026,
-  },
-];
-
-export default function Home() {
-  return (
-    <div>
-      {/* HERO */}
-      <section className="relative min-h-[650px] overflow-hidden bg-slate-900">
-        <div className="absolute inset-0 bg-black/40" />
-
-        <div className="relative mx-auto flex min-h-[650px] max-w-7xl items-center px-5 sm:px-8 lg:px-10">
-          <div className="max-w-3xl text-white">
-            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em]">
-              Selamat Datang
-            </p>
-
-            <h1 className="text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
-              {mockSchool.name}
-            </h1>
-
-            <p className="mt-6 max-w-2xl text-base leading-7 text-white/80 sm:text-lg">
-              {mockSchool.description}
-            </p>
-
-            <Link
-              to="/profil-sekolah"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
-            >
-              Profil Sekolah
-              <ArrowRight size={18} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* TENTANG */}
-      <section className="bg-white py-20">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-            <div>
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Tentang Sekolah
-              </p>
-
-              <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl">
-                {mockSchool.name}
-              </h2>
-            </div>
-
-            <p className="leading-7 text-slate-600">
-              {mockSchool.description}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* VISI MISI */}
-      <section className="bg-slate-50 py-20">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="mb-12 text-center">
-            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-              Visi & Misi
-            </p>
-
-            <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl">
-              Arah dan Tujuan Sekolah
-            </h2>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-2xl bg-white p-8 shadow-sm">
-              <h3 className="mb-4 text-xl font-bold text-slate-900">
-                Visi
-              </h3>
-
-              <p className="leading-7 text-slate-600">
-                {mockSchool.vision}
-              </p>
-            </div>
-
-            <div className="rounded-2xl bg-white p-8 shadow-sm">
-              <h3 className="mb-4 text-xl font-bold text-slate-900">
-                Misi
-              </h3>
-
-              <p className="leading-7 text-slate-600">
-                {mockSchool.mission}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* PRESTASI */}
-      <section className="bg-white py-20">
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-          <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-                Prestasi
-              </p>
-
-              <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl">
-                Prestasi Terbaru
-              </h2>
-            </div>
-
-            <Link
-              to="/prestasi"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-slate-900"
-            >
-              Lihat Lebih Banyak
-              <ArrowRight size={18} />
-            </Link>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {mockAchievements.map((achievement) => (
-              <article
-                key={achievement.id}
-                className="overflow-hidden rounded-2xl border border-slate-200 bg-white"
-              >
-                <div className="flex h-56 items-center justify-center bg-slate-200 text-sm text-slate-500">
-                  Foto Prestasi
-                </div>
-
-                <div className="p-6">
-                  <p className="text-sm text-slate-500">
-                    {achievement.name}
-                  </p>
-
-                  <h3 className="mt-2 text-lg font-bold text-slate-900">
-                    {achievement.studentName}
-                  </h3>
-
-                  <p className="mt-2 text-sm text-slate-600">
-                    {achievement.rank} • {achievement.level} •{" "}
-                    {achievement.year}
-                  </p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+      <p className="mt-2 text-sm sm:text-base">Belajar, Juara, Berkarakter</p>
+     </div>
     </div>
-  );
+   </section>
+
+   {/* Tentang Kami */}
+   <section className="mx-auto max-w-7xl px-6 py-12 md:py-16">
+    <div className="grid items-center gap-8 md:grid-cols-2">
+     <div>
+      <h2 className="mb-4 inline-block border-b-4 border-amber-500 pb-1 text-2xl font-bold">
+       Tentang Kami
+      </h2>
+
+      <p className="mb-6 max-w-xl text-sm leading-6 text-gray-700 sm:text-base">
+       SD Negeri Baros 3 adalah sekolah dasar yang berkomitmen mencetak generasi
+       muda yang berkarakter, berilmu, berprestasi, dan berwawasan lingkungan.
+      </p>
+
+      <a
+       href="/profil-sekolah"
+       className="inline-block rounded-md bg-amber-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-amber-600"
+      >
+       Profil Sekolah
+      </a>
+     </div>
+
+     {/* Foto sekolah */}
+     <div className="flex h-52 items-center justify-center rounded-xl bg-gray-300 sm:h-64 md:h-52 lg:h-56">
+      <span className="text-sm text-gray-600">Gambar belum tersedia</span>
+     </div>
+    </div>
+   </section>
+
+   {/* Visi & Misi */}
+   <section className="mx-auto max-w-7xl px-6 pb-12 md:pb-16">
+    <div className="grid gap-6 md:grid-cols-2">
+     {/* Visi */}
+     <div className="rounded-xl bg-gray-50 p-6 shadow-sm">
+      <h2 className="mb-4 inline-block border-b-4 border-amber-500 pb-1 text-xl font-bold">
+       Visi
+      </h2>
+
+      <p className="text-sm leading-6 text-gray-700 sm:text-base">
+       Visi sekolah belum ditambahkan.
+      </p>
+     </div>
+
+     {/* Misi */}
+     <div className="rounded-xl bg-gray-50 p-6 shadow-sm">
+      <h2 className="mb-4 inline-block border-b-4 border-amber-500 pb-1 text-xl font-bold">
+       Misi
+      </h2>
+
+      <ul className="space-y-3 text-sm leading-6 text-gray-700 sm:text-base">
+       <li>• Misi sekolah belum ditambahkan.</li>
+      </ul>
+     </div>
+    </div>
+   </section>
+
+   {/* Prestasi Kejuaraan Terbaru */}
+   <section className="mx-auto max-w-7xl px-6 pb-12 md:pb-16">
+    <div className="mb-6">
+     <h2 className="inline-block border-b-4 border-amber-500 pb-1 text-2xl font-bold">
+      Prestasi Kejuaraan Terbaru
+     </h2>
+    </div>
+
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+     {[1, 2, 3].map((item) => (
+      <article
+       key={item}
+       className="overflow-hidden rounded-xl bg-white shadow-md"
+      >
+       <div className="flex h-48 items-center justify-center bg-gray-300">
+        <span className="text-sm text-gray-600">Gambar belum tersedia</span>
+       </div>
+
+       <div className="p-5">
+        <h3 className="mb-3 text-base font-bold">Belum ada data prestasi</h3>
+
+        <p className="text-sm text-gray-500">Nama siswa belum tersedia</p>
+
+        <p className="text-sm text-gray-500">
+         Tingkat kejuaraan belum tersedia
+        </p>
+
+        <p className="text-sm text-gray-500">Tahun belum tersedia</p>
+       </div>
+      </article>
+     ))}
+    </div>
+
+    <div className="mt-6 text-right">
+     <a
+      href="/prestasi"
+      className="text-sm font-semibold text-amber-600 hover:text-amber-700"
+     >
+      Lihat Lebih Banyak →
+     </a>
+    </div>
+   </section>
+  </main>
+ );
 }
+
+export default Home;
