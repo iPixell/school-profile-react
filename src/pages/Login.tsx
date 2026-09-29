@@ -68,24 +68,31 @@ function Login() {
 
       const data = await response.json().catch(() => null);
 
-      // Login gagal
+      // Jika backend mengembalikan error,
+      // tampilkan message dari backend di bawah password.
       if (!response.ok) {
-        if (response.status === 401) {
-          setLoginError("Email atau password salah.");
-        } else if (response.status === 400) {
-          setLoginError(
-            data?.message || "Data login tidak valid."
-          );
-        } else {
-          setLoginError(
-            data?.message || "Login gagal. Silakan coba lagi."
-          );
+        let backendMessage = "";
+
+        if (typeof data === "string") {
+          backendMessage = data;
+        } else if (data?.message) {
+          backendMessage = data.message;
+        } else if (data?.error) {
+          backendMessage = data.error;
+        } else if (data?.data?.message) {
+          backendMessage = data.data.message;
+        } else if (data?.data?.error) {
+          backendMessage = data.data.error;
         }
+
+        setLoginError(
+          backendMessage || "Terjadi kesalahan saat login."
+        );
 
         return;
       }
 
-      // Ambil access token dari beberapa kemungkinan format response BE
+      // Ambil access token dari response backend
       const accessToken =
         data?.accessToken ??
         data?.access_token ??
@@ -107,9 +114,9 @@ function Login() {
       // Login berhasil
       navigate("/home");
     } catch {
-      setLoginError(
-        "Tidak dapat terhubung ke server. Pastikan backend sedang berjalan."
-      );
+      // Hanya terjadi jika request tidak mendapatkan response
+      // dari backend, misalnya backend mati atau koneksi gagal.
+      setLoginError("Tidak dapat terhubung ke server.");
     } finally {
       setIsLoading(false);
     }
@@ -135,13 +142,6 @@ function Login() {
             Masuk ke Admin Panel
           </p>
         </div>
-
-        {/* Login Error */}
-        {loginError && (
-          <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-            {loginError}
-          </div>
-        )}
 
         <form className="space-y-5" onSubmit={handleSubmit}>
           {/* Email */}
@@ -200,7 +200,7 @@ function Login() {
                 placeholder="Masukkan password"
                 autoComplete="current-password"
                 className={`w-full rounded-lg border px-4 py-3 pr-12 text-sm outline-none transition focus:ring-2 ${
-                  passwordError
+                  passwordError || loginError
                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/15"
                     : "border-gray-300 focus:border-[#B46000] focus:ring-[#B46000]/15"
                 }`}
@@ -228,6 +228,12 @@ function Login() {
             {passwordError && (
               <p className="mt-1.5 text-sm text-red-500">
                 {passwordError}
+              </p>
+            )}
+
+            {loginError && (
+              <p className="mt-1.5 text-sm text-red-500">
+                {loginError}
               </p>
             )}
           </div>
