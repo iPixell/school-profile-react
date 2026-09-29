@@ -1,10 +1,11 @@
 import { apiFetch } from "./api";
 
 export interface PrincipalHistory {
- id: string;
+ id: number;
  name: string;
- startYear: number;
- endYear: number | null;
+ period: string;
+ createdAt: string;
+ updatedAt: string;
 }
 
 interface PrincipalHistoryResponse {
