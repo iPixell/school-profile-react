@@ -51,29 +51,65 @@ function Login() {
     try {
       setIsLoading(true);
 
-      /*
-       * TODO:
-       * Nanti bagian ini disambungkan ke API login backend.
-       *
-       * Jika login berhasil:
-       * navigate("/home");
-       *
-       * Jika email/password salah:
-       * setLoginError("Email atau password salah.");
-       */
+      const apiUrl =
+        import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-      // Sementara simulasi login berhasil
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const response = await fetch(`${apiUrl}/api/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
+      });
 
+      const data = await response.json().catch(() => null);
+
+      // Login gagal
+      if (!response.ok) {
+        if (response.status === 401) {
+          setLoginError("Email atau password salah.");
+        } else if (response.status === 400) {
+          setLoginError(
+            data?.message || "Data login tidak valid."
+          );
+        } else {
+          setLoginError(
+            data?.message || "Login gagal. Silakan coba lagi."
+          );
+        }
+
+        return;
+      }
+
+      // Ambil access token dari beberapa kemungkinan format response BE
+      const accessToken =
+        data?.accessToken ??
+        data?.access_token ??
+        data?.data?.accessToken ??
+        data?.data?.access_token ??
+        data?.token;
+
+      if (accessToken) {
+        sessionStorage.setItem("accessToken", accessToken);
+      }
+
+      // Remember Me
       if (rememberMe) {
         localStorage.setItem("rememberMe", "true");
       } else {
         localStorage.removeItem("rememberMe");
       }
 
+      // Login berhasil
       navigate("/home");
     } catch {
-      setLoginError("Email atau password salah.");
+      setLoginError(
+        "Tidak dapat terhubung ke server. Pastikan backend sedang berjalan."
+      );
     } finally {
       setIsLoading(false);
     }
