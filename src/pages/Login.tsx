@@ -66,57 +66,24 @@ function Login() {
         }),
       });
 
-      const data = await response.json().catch(() => null);
+      const data = await response.json();
 
-      // Jika backend mengembalikan error,
-      // tampilkan message dari backend di bawah password.
+      // Response error dari backend
       if (!response.ok) {
-        let backendMessage = "";
-
-        if (typeof data === "string") {
-          backendMessage = data;
-        } else if (data?.message) {
-          backendMessage = data.message;
-        } else if (data?.error) {
-          backendMessage = data.error;
-        } else if (data?.data?.message) {
-          backendMessage = data.data.message;
-        } else if (data?.data?.error) {
-          backendMessage = data.data.error;
-        }
-
-        setLoginError(
-          backendMessage || "Terjadi kesalahan saat login."
-        );
-
+        setLoginError(data.message);
         return;
       }
 
-      // Ambil access token dari response backend
-      const accessToken =
-        data?.accessToken ??
-        data?.access_token ??
-        data?.data?.accessToken ??
-        data?.data?.access_token ??
-        data?.token;
+      // Response sukses dari backend
+      sessionStorage.setItem("accessToken", data.accessToken);
 
-      if (accessToken) {
-        sessionStorage.setItem("accessToken", accessToken);
-      }
-
-      // Remember Me
       if (rememberMe) {
         localStorage.setItem("rememberMe", "true");
       } else {
         localStorage.removeItem("rememberMe");
       }
 
-      // Login berhasil
       navigate("/home");
-    } catch {
-      // Hanya terjadi jika request tidak mendapatkan response
-      // dari backend, misalnya backend mati atau koneksi gagal.
-      setLoginError("Tidak dapat terhubung ke server.");
     } finally {
       setIsLoading(false);
     }
@@ -231,6 +198,7 @@ function Login() {
               </p>
             )}
 
+            {/* Error langsung dari backend */}
             {loginError && (
               <p className="mt-1.5 text-sm text-red-500">
                 {loginError}
