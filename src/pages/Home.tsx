@@ -1,8 +1,35 @@
+import React, { useEffect, useState } from 'react';
+import {
+ getSchoolProfile,
+ type SchoolProfile,
+} from "../services/schoolProfile.service";
+
 function Home() {
+ const [profile, setProfile] = useState<SchoolProfile | null>(null);
+
+ useEffect(() => {
+  async function loadProfile() {
+   try {
+    const response = await getSchoolProfile();
+    setProfile(response.data);
+   } catch (error) {
+    console.error("Gagal mengambil profil sekolah:", error);
+   }
+  }
+
+  loadProfile();
+ }, []);
  return (
   <main>
    {/* Hero */}
-   <section className="relative h-[260px] bg-gray-300 sm:h-[300px] md:h-[350px]">
+   <section
+    className="relative h-[260px] bg-gray-300 bg-cover bg-center sm:h-[300px] md:h-[350px]"
+    style={
+     profile?.bannerUrl
+      ? { backgroundImage: `url(${profile.bannerUrl})` }
+      : undefined
+    }
+   >
     <div className="mx-auto flex h-full max-w-7xl items-center px-6">
      <div className="text-white">
       <p className="mb-2 text-sm sm:text-base">Selamat Datang di</p>
@@ -25,10 +52,8 @@ function Home() {
       </h2>
 
       <p className="mb-6 max-w-xl text-sm leading-6 text-gray-700 sm:text-base">
-       SD Negeri Baros 3 adalah sekolah dasar yang berkomitmen mencetak generasi
-       muda yang berkarakter, berilmu, berprestasi, dan berwawasan lingkungan.
+       {profile?.shortInfo || "Informasi singkat sekolah belum tersedia."}
       </p>
-
       <a
        href="/profil-sekolah"
        className="inline-block rounded-md bg-amber-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-amber-600"
@@ -54,7 +79,7 @@ function Home() {
       </h2>
 
       <p className="text-sm leading-6 text-gray-700 sm:text-base">
-       Visi sekolah belum ditambahkan.
+       {profile?.vision || "Visi sekolah belum tersedia."}
       </p>
      </div>
 
@@ -64,9 +89,17 @@ function Home() {
        Misi
       </h2>
 
-      <ul className="space-y-3 text-sm leading-6 text-gray-700 sm:text-base">
-       <li>• Misi sekolah belum ditambahkan.</li>
-      </ul>
+      {profile?.mission ? (
+       <ul className="space-y-2 text-sm leading-6 text-gray-700 sm:text-base">
+        {profile.mission.split("\n").map((item, index) => (
+         <li key={index}>• {item}</li>
+        ))}
+       </ul>
+      ) : (
+       <p className="text-sm leading-6 text-gray-700 sm:text-base">
+        Misi sekolah belum tersedia.
+       </p>
+      )}
      </div>
     </div>
    </section>
@@ -90,15 +123,16 @@ function Home() {
        </div>
 
        <div className="p-5">
-        <h3 className="mb-3 text-base font-bold">Belum ada data prestasi</h3>
+        <h3 className="mb-3 text-base font-bold">
+         Data prestasi belum tersedia
+        </h3>
 
-        <p className="text-sm text-gray-500">Nama siswa belum tersedia</p>
-
-        <p className="text-sm text-gray-500">
-         Tingkat kejuaraan belum tersedia
-        </p>
-
-        <p className="text-sm text-gray-500">Tahun belum tersedia</p>
+        <div className="space-y-1 text-sm text-gray-500">
+         <p>Nama siswa belum tersedia</p>
+         <p>Peringkat belum tersedia</p>
+         <p>Tingkat belum tersedia</p>
+         <p>Tahun belum tersedia</p>
+        </div>
        </div>
       </article>
      ))}
