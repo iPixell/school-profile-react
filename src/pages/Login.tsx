@@ -1,9 +1,10 @@
-import { useState } from "react";
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
@@ -13,8 +14,9 @@ function Login() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [loginError, setLoginError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setEmailError("");
@@ -23,6 +25,7 @@ function Login() {
 
     let hasError = false;
 
+    // Validasi email
     if (!email.trim()) {
       setEmailError("Email wajib diisi.");
       hasError = true;
@@ -31,6 +34,7 @@ function Login() {
       hasError = true;
     }
 
+    // Validasi password
     if (!password) {
       setPasswordError("Password wajib diisi.");
       hasError = true;
@@ -41,21 +45,43 @@ function Login() {
 
     if (hasError) return;
 
-    // TODO: sambungkan ke API login backend.
-    // Jika email/password salah dari backend:
-    // setLoginError("Email atau password salah.");
-    console.log({
-      email,
-      password,
-      rememberMe,
-    });
+    /*
+     * TODO:
+     * Sambungkan ke API login backend.
+     *
+     * Setelah backend mengembalikan login berhasil:
+     * navigate("/home");
+     *
+     * Jika email/password salah:
+     * setLoginError("Email atau password salah.");
+     */
+
+    try {
+      setIsLoading(true);
+
+      // Sementara simulasi berhasil.
+      // Nanti bagian ini diganti dengan request ke backend.
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      if (rememberMe) {
+        localStorage.setItem("rememberMe", "true");
+      } else {
+        localStorage.removeItem("rememberMe");
+      }
+
+      navigate("/home");
+    } catch {
+      setLoginError("Email atau password salah.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-white px-5 py-8">
       <section className="w-full max-w-md rounded-2xl bg-white px-6 py-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] sm:px-10 sm:py-10">
 
-        {/* Logo - nanti ambil dari Backend */}
+        {/* Logo */}
         <div className="mb-6 flex justify-center">
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-500">
             LOGO
@@ -73,7 +99,7 @@ function Login() {
           </p>
         </div>
 
-        {/* General Login Error */}
+        {/* Login Error */}
         {loginError && (
           <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
             {loginError}
@@ -144,9 +170,10 @@ function Login() {
                 }`}
               />
 
+              {/* Toggle Password */}
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => setShowPassword((prev) => !prev)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 transition hover:text-[#B46000]"
                 aria-label={
                   showPassword
@@ -155,9 +182,9 @@ function Login() {
                 }
               >
                 {showPassword ? (
-                  <EyeOff size={20} />
-                ) : (
                   <Eye size={20} />
+                ) : (
+                  <EyeOff size={20} />
                 )}
               </button>
             </div>
@@ -178,6 +205,7 @@ function Login() {
                 onChange={(e) => setRememberMe(e.target.checked)}
                 className="h-4 w-4 cursor-pointer accent-[#B46000]"
               />
+
               <span>Remember Me</span>
             </label>
 
@@ -189,13 +217,15 @@ function Login() {
             </Link>
           </div>
 
-          {/* Login */}
+          {/* Login Button */}
           <button
             type="submit"
-            className="w-full rounded-lg bg-[#B46000] px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-[#944F00] active:scale-[0.99]"
+            disabled={isLoading}
+            className="w-full rounded-lg bg-[#B46000] px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-[#944F00] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
           >
-            Login
+            {isLoading ? "Memproses..." : "Login"}
           </button>
+
         </form>
       </section>
     </main>
