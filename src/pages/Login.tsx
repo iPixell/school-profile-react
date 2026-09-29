@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   return (
     <main className="min-h-screen bg-white flex items-center justify-center px-5 py-8">
@@ -85,8 +86,18 @@ function Login() {
             </div>
           </div>
 
-          {/* Forgot Password */}
-          <div className="flex justify-end">
+          {/* Remember Me & Forgot Password */}
+          <div className="flex items-center justify-between gap-4">
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-600">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 cursor-pointer accent-[#B46000]"
+              />
+              <span>Remember Me</span>
+            </label>
+
             <Link
               to="/forgot-password"
               className="text-sm font-semibold text-[#B46000] hover:underline"
