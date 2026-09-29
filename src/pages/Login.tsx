@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
+import type { SubmitEvent } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -16,7 +17,7 @@ function Login() {
   const [loginError, setLoginError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setEmailError("");
@@ -43,24 +44,25 @@ function Login() {
       hasError = true;
     }
 
-    if (hasError) return;
-
-    /*
-     * TODO:
-     * Sambungkan ke API login backend.
-     *
-     * Setelah backend mengembalikan login berhasil:
-     * navigate("/home");
-     *
-     * Jika email/password salah:
-     * setLoginError("Email atau password salah.");
-     */
+    if (hasError) {
+      return;
+    }
 
     try {
       setIsLoading(true);
 
-      // Sementara simulasi berhasil.
-      // Nanti bagian ini diganti dengan request ke backend.
+      /*
+       * TODO:
+       * Nanti bagian ini disambungkan ke API login backend.
+       *
+       * Jika login berhasil:
+       * navigate("/home");
+       *
+       * Jika email/password salah:
+       * setLoginError("Email atau password salah.");
+       */
+
+      // Sementara simulasi login berhasil
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       if (rememberMe) {
@@ -80,7 +82,6 @@ function Login() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-white px-5 py-8">
       <section className="w-full max-w-md rounded-2xl bg-white px-6 py-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] sm:px-10 sm:py-10">
-
         {/* Logo */}
         <div className="mb-6 flex justify-center">
           <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-500">
@@ -88,7 +89,7 @@ function Login() {
           </div>
         </div>
 
-        {/* Header */}
+        {/* Heading */}
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
             Login
@@ -107,7 +108,6 @@ function Login() {
         )}
 
         <form className="space-y-5" onSubmit={handleSubmit}>
-
           {/* Email */}
           <div>
             <label
@@ -170,7 +170,7 @@ function Login() {
                 }`}
               />
 
-              {/* Toggle Password */}
+              {/* Show / Hide Password */}
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
@@ -196,7 +196,7 @@ function Login() {
             )}
           </div>
 
-          {/* Remember Me & Forgot Password */}
+          {/* Remember Me + Forgot Password */}
           <div className="flex items-center justify-between gap-4">
             <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-600">
               <input
@@ -225,7 +225,6 @@ function Login() {
           >
             {isLoading ? "Memproses..." : "Login"}
           </button>
-
         </form>
       </section>
     </main>
