@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { FormEvent } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -6,8 +7,52 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [loginError, setLoginError] = useState("");
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    setEmailError("");
+    setPasswordError("");
+    setLoginError("");
+
+    let hasError = false;
+
+    if (!email.trim()) {
+      setEmailError("Email wajib diisi.");
+      hasError = true;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError("Format email tidak valid.");
+      hasError = true;
+    }
+
+    if (!password) {
+      setPasswordError("Password wajib diisi.");
+      hasError = true;
+    } else if (password.length < 8) {
+      setPasswordError("Password minimal 8 karakter.");
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    // TODO: sambungkan ke API login backend.
+    // Jika email/password salah dari backend:
+    // setLoginError("Email atau password salah.");
+    console.log({
+      email,
+      password,
+      rememberMe,
+    });
+  };
+
   return (
-    <main className="min-h-screen bg-white flex items-center justify-center px-5 py-8">
+    <main className="flex min-h-screen items-center justify-center bg-white px-5 py-8">
       <section className="w-full max-w-md rounded-2xl bg-white px-6 py-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] sm:px-10 sm:py-10">
 
         {/* Logo - nanti ambil dari Backend */}
@@ -28,25 +73,47 @@ function Login() {
           </p>
         </div>
 
-        {/* Form */}
-        <form className="space-y-5">
+        {/* General Login Error */}
+        {loginError && (
+          <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+            {loginError}
+          </div>
+        )}
 
-          {/* Username */}
+        <form className="space-y-5" onSubmit={handleSubmit}>
+
+          {/* Email */}
           <div>
             <label
-              htmlFor="username"
+              htmlFor="email"
               className="mb-2 block text-sm font-semibold text-gray-700"
             >
-              Username
+              Email
             </label>
 
             <input
-              id="username"
-              type="text"
-              placeholder="Masukkan username"
-              autoComplete="username"
-              className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-[#B46000] focus:ring-2 focus:ring-[#B46000]/15"
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setEmailError("");
+                setLoginError("");
+              }}
+              placeholder="Masukkan email"
+              autoComplete="email"
+              className={`w-full rounded-lg border px-4 py-3 text-sm outline-none transition focus:ring-2 ${
+                emailError
+                  ? "border-red-500 focus:border-red-500 focus:ring-red-500/15"
+                  : "border-gray-300 focus:border-[#B46000] focus:ring-[#B46000]/15"
+              }`}
             />
+
+            {emailError && (
+              <p className="mt-1.5 text-sm text-red-500">
+                {emailError}
+              </p>
+            )}
           </div>
 
           {/* Password */}
@@ -62,9 +129,19 @@ function Login() {
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setPasswordError("");
+                  setLoginError("");
+                }}
                 placeholder="Masukkan password"
                 autoComplete="current-password"
-                className="w-full rounded-lg border border-gray-300 px-4 py-3 pr-12 text-sm outline-none transition focus:border-[#B46000] focus:ring-2 focus:ring-[#B46000]/15"
+                className={`w-full rounded-lg border px-4 py-3 pr-12 text-sm outline-none transition focus:ring-2 ${
+                  passwordError
+                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/15"
+                    : "border-gray-300 focus:border-[#B46000] focus:ring-[#B46000]/15"
+                }`}
               />
 
               <button
@@ -84,6 +161,12 @@ function Login() {
                 )}
               </button>
             </div>
+
+            {passwordError && (
+              <p className="mt-1.5 text-sm text-red-500">
+                {passwordError}
+              </p>
+            )}
           </div>
 
           {/* Remember Me & Forgot Password */}
@@ -113,7 +196,6 @@ function Login() {
           >
             Login
           </button>
-
         </form>
       </section>
     </main>
