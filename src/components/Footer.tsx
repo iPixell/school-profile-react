@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { MapPin, Phone, Mail } from "lucide-react";
+import { FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
 import { getContacts, type Contact } from "../services/contact.service";
+import {
+ getSocialMedias,
+ type SocialMedia,
+} from "../services/socialMedia.service";
 import {
  getSchoolProfile,
  type SchoolProfile,
@@ -9,6 +14,7 @@ import {
 function Footer() {
  const [contact, setContact] = useState<Contact | null>(null);
  const [schoolProfile, setSchoolProfile] = useState<SchoolProfile | null>(null);
+ const [socialMedias, setSocialMedias] = useState<SocialMedia[]>([]);
 
  useEffect(() => {
   async function loadData() {
@@ -24,6 +30,13 @@ function Footer() {
     setSchoolProfile(schoolProfileResponse.data);
    } catch (error) {
     console.error("Gagal mengambil profil sekolah:", error);
+   }
+
+   try {
+    const socialMediaResponse = await getSocialMedias();
+    setSocialMedias(socialMediaResponse.data);
+   } catch (error) {
+    console.error("Gagal mengambil data media sosial:", error);
    }
   }
 
@@ -83,8 +96,45 @@ function Footer() {
     <div>
      <h3 className="mb-5 text-base font-bold">Ikuti Kami</h3>
 
-     <div className="flex gap-4 text-sm">
-      Instagram Facebook YouTube WhatsApp
+     <div className="flex items-center gap-4">
+      <a
+       href={
+        socialMedias.find((item) => item.platform.toLowerCase() === "instagram")
+         ?.url || "#"
+       }
+       target="_blank"
+       rel="noopener noreferrer"
+       aria-label="Instagram"
+       className="transition-opacity hover:opacity-70"
+      >
+       <FaInstagram size={22} />
+      </a>
+
+      <a
+       href={
+        socialMedias.find((item) => item.platform.toLowerCase() === "facebook")
+         ?.url || "#"
+       }
+       target="_blank"
+       rel="noopener noreferrer"
+       aria-label="Facebook"
+       className="transition-opacity hover:opacity-70"
+      >
+       <FaFacebook size={22} />
+      </a>
+
+      <a
+       href={
+        socialMedias.find((item) => item.platform.toLowerCase() === "youtube")
+         ?.url || "#"
+       }
+       target="_blank"
+       rel="noopener noreferrer"
+       aria-label="YouTube"
+       className="transition-opacity hover:opacity-70"
+      >
+       <FaYoutube size={22} />
+      </a>
      </div>
     </div>
    </div>
@@ -97,3 +147,4 @@ function Footer() {
 }
 
 export default Footer;
+Footer;
