@@ -1,6 +1,22 @@
 import { apiFetch } from "./api";
-import type { Achievement } from "../types/achievement";
 
-export function getLatestAchievements() {
-  return apiFetch<Achievement[]>("/achievements/latest");
+export interface Achievement {
+ id: number;
+ competition: string;
+ studentName: string;
+ rank: string;
+ level: string;
+ year: number;
+ photoUrl: string | null;
+ createdAt: string;
+ updatedAt: string;
+}
+
+interface AchievementResponse {
+ message: string;
+ data: Achievement[];
+}
+
+export async function getAchievements() {
+ return apiFetch<AchievementResponse>("/achievements");
 }
