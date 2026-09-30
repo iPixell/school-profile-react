@@ -1,23 +1,34 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
  getSchoolProfile,
  type SchoolProfile,
 } from "../services/schoolProfile.service";
+import {
+ getAchievements,
+ type Achievement,
+} from "../services/achievement.service";
 
 function Home() {
  const [profile, setProfile] = useState<SchoolProfile | null>(null);
+ const [achievements, setAchievements] = useState<Achievement[]>([]);
 
  useEffect(() => {
-  async function loadProfile() {
+  async function loadData() {
    try {
-    const response = await getSchoolProfile();
-    setProfile(response.data);
+    const [profileResponse, achievementResponse] = await Promise.all([
+     getSchoolProfile(),
+     getAchievements(),
+    ]);
+
+    setProfile(profileResponse.data);
+    setAchievements(achievementResponse.data);
    } catch (error) {
-    console.error("Gagal mengambil profil sekolah:", error);
+    console.error("Gagal mengambil data:", error);
    }
   }
 
-  loadProfile();
+  loadData();
  }, []);
  return (
   <main>
@@ -105,47 +116,76 @@ function Home() {
    </section>
 
    {/* Prestasi Kejuaraan Terbaru */}
-   <section className="mx-auto max-w-7xl px-6 pb-12 md:pb-16">
+   <section className="mx-auto max-w-7xl px-6 pb-16">
     <div className="mb-6">
-     <h2 className="inline-block border-b-4 border-amber-500 pb-1 text-2xl font-bold">
+     <h2 className="inline-block border-b-4 border-amber-500 pb-1 text-xl font-bold">
       Prestasi Kejuaraan Terbaru
      </h2>
     </div>
 
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-     {[1, 2, 3].map((item) => (
-      <article
-       key={item}
-       className="overflow-hidden rounded-xl bg-white shadow-md"
-      >
-       <div className="flex h-48 items-center justify-center bg-gray-300">
-        <span className="text-sm text-gray-600">Gambar belum tersedia</span>
-       </div>
+    {achievements.length > 0 ? (
+     <>
+      <div className="grid gap-5 md:grid-cols-3">
+       {achievements
+        .sort((a, b) => {
+         if (b.year !== a.year) {
+          return b.year - a.year;
+         }
 
-       <div className="p-5">
-        <h3 className="mb-3 text-base font-bold">
-         Data prestasi belum tersedia
-        </h3>
+         return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+         );
+        })
+        .slice(0, 3)
+        .map((item) => (
+         <article
+          key={item.id}
+          className="overflow-hidden rounded-xl bg-white shadow-sm"
+         >
+          <div className="flex h-44 items-center justify-center bg-gray-300">
+           {item.photoUrl ? (
+            <img
+             src={item.photoUrl}
+             alt={item.competition}
+             className="h-full w-full object-cover"
+            />
+           ) : (
+            <span className="text-sm text-gray-600">Gambar belum tersedia</span>
+           )}
+          </div>
 
-        <div className="space-y-1 text-sm text-gray-500">
-         <p>Nama siswa belum tersedia</p>
-         <p>Peringkat belum tersedia</p>
-         <p>Tingkat belum tersedia</p>
-         <p>Tahun belum tersedia</p>
-        </div>
-       </div>
-      </article>
-     ))}
-    </div>
+          <div className="p-4">
+           <h3 className="mb-3 text-sm font-bold text-gray-800">
+            {item.competition}
+           </h3>
 
-    <div className="mt-6 text-right">
-     <a
-      href="/prestasi"
-      className="text-sm font-semibold text-amber-600 hover:text-amber-700"
-     >
-      Lihat Lebih Banyak →
-     </a>
-    </div>
+           <div className="space-y-1 text-xs text-gray-500">
+            <p>Nama siswa: {item.studentName}</p>
+            <p>Peringkat: {item.rank}</p>
+            <p>Tingkat: {item.level}</p>
+            <p>Tahun: {item.year}</p>
+           </div>
+          </div>
+         </article>
+        ))}
+      </div>
+
+      <div className="mt-5 text-right">
+       <Link
+        to="/prestasi"
+        className="text-xs font-semibold text-amber-600 hover:text-amber-700"
+       >
+        Lihat Lebih Banyak →
+       </Link>
+      </div>
+     </>
+    ) : (
+     <div className="flex min-h-40 items-center justify-center text-center">
+      <p className="text-sm text-gray-500">
+       Belum ada data prestasi yang ditambahkan.
+      </p>
+     </div>
+    )}
    </section>
   </main>
  );
