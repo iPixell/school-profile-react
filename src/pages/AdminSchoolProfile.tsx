@@ -1,4 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+} from "react";
 import { Image as ImageIcon, Upload } from "lucide-react";
 import {
  getSchoolProfile,
@@ -73,7 +78,7 @@ function AdminSchoolProfile() {
   loadSchoolProfile();
  }, []);
 
- const handleBannerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+ const handleBannerChange = (event: ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
 
   if (!file) return;
@@ -84,7 +89,7 @@ function AdminSchoolProfile() {
   setSuccess("");
  };
 
- const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+ const handleLogoChange = (event: ChangeEvent<HTMLInputElement>) => {
   const file = event.target.files?.[0];
 
   if (!file) return;
