@@ -6,6 +6,7 @@ import {
  getSchoolProfile,
  type SchoolProfile,
 } from "../services/schoolProfile.service";
+
 import {
  getSocialMedias,
  type SocialMedia,
@@ -13,39 +14,62 @@ import {
 
 function Footer() {
  const [contact, setContact] = useState<Contact | null>(null);
+
  const [schoolProfile, setSchoolProfile] = useState<SchoolProfile | null>(null);
+
  const [socialMedias, setSocialMedias] = useState<SocialMedia[]>([]);
 
  useEffect(() => {
   async function loadData() {
+   // Ambil data kontak
    try {
     const contactResponse = await getContacts();
+
     setContact(contactResponse.data[0] ?? null);
    } catch (error) {
     console.error("Gagal mengambil data kontak:", error);
    }
 
+   // Ambil profil sekolah
    try {
     const schoolProfileResponse = await getSchoolProfile();
+
     setSchoolProfile(schoolProfileResponse.data);
    } catch (error) {
     console.error("Gagal mengambil profil sekolah:", error);
    }
-  }
 
-  try {
-   const socialMediaResponse = await getSocialMedias();
-   setSocialMedias(socialMediaResponse.data);
-  } catch (error) {
-   console.error("Gagal mengambil data media sosial:", error);
+   // Ambil media sosial
+   try {
+    const socialMediaResponse = await getSocialMedias();
+
+    setSocialMedias(socialMediaResponse.data);
+   } catch (error) {
+    console.error("Gagal mengambil data media sosial:", error);
+
+    setSocialMedias([]);
+   }
   }
 
   loadData();
  }, []);
 
+ const instagramUrl = socialMedias.find(
+  (item) => item.platform.toLowerCase() === "instagram",
+ )?.url;
+
+ const facebookUrl = socialMedias.find(
+  (item) => item.platform.toLowerCase() === "facebook",
+ )?.url;
+
+ const youtubeUrl = socialMedias.find(
+  (item) => item.platform.toLowerCase() === "youtube",
+ )?.url;
+
  return (
   <footer className="bg-amber-700 text-white">
    <div className="mx-auto grid max-w-7xl gap-10 px-6 py-12 md:grid-cols-3">
+    {/* Logo & Nama Sekolah */}
     <div className="flex items-center gap-4">
      {schoolProfile?.logoUrl ? (
       <img
@@ -62,6 +86,7 @@ function Footer() {
      </span>
     </div>
 
+    {/* Kontak */}
     <div>
      <h3 className="mb-5 text-base font-bold">Kontak Kami</h3>
 
@@ -69,21 +94,24 @@ function Footer() {
       <div className="space-y-3 text-sm">
        {contact.address && (
         <div className="flex items-start gap-3">
-         <MapPin size={18} />
+         <MapPin size={18} className="mt-0.5 shrink-0" />
+
          <span>{contact.address}</span>
         </div>
        )}
 
        {contact.phone && (
         <div className="flex items-center gap-3">
-         <Phone size={18} />
+         <Phone size={18} className="shrink-0" />
+
          <span>{contact.phone}</span>
         </div>
        )}
 
        {contact.email && (
         <div className="flex items-center gap-3">
-         <Mail size={18} />
+         <Mail size={18} className="shrink-0" />
+
          <span>{contact.email}</span>
         </div>
        )}
@@ -93,52 +121,48 @@ function Footer() {
      )}
     </div>
 
+    {/* Social Media */}
     <div>
      <h3 className="mb-5 text-base font-bold">Ikuti Kami</h3>
 
      <div className="flex items-center gap-4">
+      {/* Instagram */}
       <a
-       href={
-        socialMedias.find((item) => item.platform.toLowerCase() === "instagram")
-         ?.url || "#"
-       }
+       href={instagramUrl || "#"}
        target="_blank"
        rel="noopener noreferrer"
        aria-label="Instagram"
        className="transition-opacity hover:opacity-70"
       >
-       <FaInstagram size={22} />
+       <FaInstagram size={24} />
       </a>
 
+      {/* Facebook */}
       <a
-       href={
-        socialMedias.find((item) => item.platform.toLowerCase() === "facebook")
-         ?.url || "#"
-       }
+       href={facebookUrl || "#"}
        target="_blank"
        rel="noopener noreferrer"
        aria-label="Facebook"
        className="transition-opacity hover:opacity-70"
       >
-       <FaFacebook size={22} />
+       <FaFacebook size={24} />
       </a>
 
+      {/* YouTube */}
       <a
-       href={
-        socialMedias.find((item) => item.platform.toLowerCase() === "youtube")
-         ?.url || "#"
-       }
+       href={youtubeUrl || "#"}
        target="_blank"
        rel="noopener noreferrer"
        aria-label="YouTube"
        className="transition-opacity hover:opacity-70"
       >
-       <FaYoutube size={22} />
+       <FaYoutube size={24} />
       </a>
      </div>
     </div>
    </div>
 
+   {/* Copyright */}
    <div className="border-t border-white/20 py-3 text-center text-xs">
     © 2026 {schoolProfile?.schoolName || "SD Negeri Baros 3"}
    </div>
