@@ -16,6 +16,13 @@ import ResetLinkSent from "./pages/ResetLinkSent";
 import ResetPassword from "./pages/ResetPassword";
 import ResetPasswordSuccess from "./pages/ResetPasswordSuccess";
 
+
+import AdminLayout from "./layouts/AdminLayout";
+import Staff from "./pages/admin/Staff";
+import PrincipalHistory from "./pages/admin/PrincipalHistory";
+import AdminExtracurricular from "./pages/admin/Extracurricular";
+import AdminSchoolProfile from "./pages/admin/SchoolProfile";
+
 function App() {
   return (
     <BrowserRouter>
@@ -67,6 +74,29 @@ function App() {
           path="/reset-password/success"
           element={<ResetPasswordSuccess />}
         />
+
+        <Route element={<AdminLayout />}>
+          <Route
+            path="/admin/staff"
+            element={<Staff />}
+          />
+
+          <Route
+            path="/admin/principal-history"
+            element={<PrincipalHistory />}
+          />
+        </Route>
+
+        <Route
+          path="/admin/ekstrakurikuler"
+          element={<AdminExtracurricular />}
+        />
+
+        <Route
+          path="/admin/profil-sekolah"
+          element={<AdminSchoolProfile />}
+        />
+
 
       </Routes>
     </BrowserRouter>
