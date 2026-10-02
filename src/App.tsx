@@ -17,70 +17,85 @@ import ResetPasswordSuccess from "./pages/ResetPasswordSuccess";
 import AdminSchoolProfile from "./pages/admin/SchoolProfile";
 import PrincipalHistory from "./pages/admin/PrincipalHistory";
 import AdminRoute from "./routes/AdminRoute";
+import AdminSPMB from "./pages/admin/SPMB";
+import AdminFacilities from "./pages/admin/Facilities";
+import AdminContact from "./pages/admin/Contact";
 
 function App() {
- return (
-  <BrowserRouter>
-   <Routes>
-    {/* =========================
+    return (
+        <BrowserRouter>
+            <Routes>
+                {/* =========================
             PUBLIC WEBSITE
         ========================== */}
 
-    <Route element={<PublicLayout />}>
-     <Route path="/" element={<Home />} />
+                <Route element={<PublicLayout />}>
+                    <Route path="/" element={<Home />} />
 
-     <Route path="/home" element={<Home />} />
+                    <Route path="/home" element={<Home />} />
 
-     <Route path="/prestasi" element={<Achievements />} />
+                    <Route path="/prestasi" element={<Achievements />} />
 
-     <Route path="/profil-sekolah" element={<SchoolProfile />} />
+                    <Route path="/profil-sekolah" element={<SchoolProfile />} />
 
-     <Route path="/ekstrakurikuler" element={<Extracurricular />} />
+                    <Route path="/ekstrakurikuler" element={<Extracurricular />} />
 
-     <Route path="/ekstrakurikuler/:id" element={<ExtracurricularDetail />} />
+                    <Route path="/ekstrakurikuler/:id" element={<ExtracurricularDetail />} />
 
-     <Route path="/sarana-prasarana" element={<Facilities />} />
+                    <Route path="/sarana-prasarana" element={<Facilities />} />
 
-     <Route path="/spmb" element={<SPMB />} />
+                    <Route path="/spmb" element={<SPMB />} />
 
-     <Route path="/kontak" element={<Contact />} />
-    </Route>
+                    <Route path="/kontak" element={<Contact />} />
+                </Route>
 
-    {/* =========================
+                {/* =========================
             ADMIN AUTH
         ========================== */}
 
-    <Route path="/login" element={<Login />} />
+                <Route path="/login" element={<Login />} />
 
-    <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
 
-    <Route path="/reset-link-sent" element={<ResetLinkSent />} />
+                <Route path="/reset-link-sent" element={<ResetLinkSent />} />
 
-    <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
 
-    <Route path="/reset-password/success" element={<ResetPasswordSuccess />} />
+                <Route path="/reset-password/success" element={<ResetPasswordSuccess />} />
 
-    {/* =========================
+                {/* =========================
             PROTECTED ADMIN PANEL
         ========================== */}
 
-    <Route
-     path="/admin"
-     element={
-      <AdminRoute>
-       <AdminLayout />
-      </AdminRoute>
-     }
-    >
-     <Route index element={<AdminSchoolProfile />} />
+                <Route
+                    path="/admin"
+                    element={
+                        <AdminRoute>
+                            <AdminLayout />
+                        </AdminRoute>
+                    }
+                >
+                    <Route index element={<AdminSchoolProfile />} />
 
-     <Route path="profil-sekolah" element={<AdminSchoolProfile />} />
+                    <Route path="profil-sekolah" element={<AdminSchoolProfile />} />
 
-     <Route path="principal-history" element={<PrincipalHistory />} />
-    </Route>
-   </Routes>
-  </BrowserRouter>
- );
+                    <Route path="principal-history" element={<PrincipalHistory />} />
+                    <Route
+                        path="spmb"
+                        element={<AdminSPMB />}
+                    />
+                    <Route
+                        path="facilities"
+                        element={<AdminFacilities />}
+                    />
+                    <Route
+                        path="contact"
+                        element={<AdminContact />}
+                    />
+                </Route>
+            </Routes>
+        </BrowserRouter>
+    );
 }
 
 export default App;

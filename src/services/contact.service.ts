@@ -2,12 +2,12 @@ import { apiFetch } from "./api";
 
 export interface Contact {
   id: number;
-  address: string | null;
-  phone: string | null;
-  email: string | null;
-  whatsapp: string | null;
-  location: string | null;
-  googleMaps: string | null;
+  address: string;
+  phone: string;
+  email: string;
+  whatsapp: string;
+  location: string;
+  googleMaps: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -17,6 +17,27 @@ interface ContactResponse {
   data: Contact[];
 }
 
+interface ContactSingleResponse {
+  message: string;
+  data: Contact;
+}
+
+export interface ContactFormData {
+  address: string;
+  phone: string;
+  email: string;
+  whatsapp: string;
+  location: string;
+  googleMaps: string;
+}
+
 export async function getContacts() {
   return apiFetch<ContactResponse>("/contacts");
+}
+
+export async function createContact(data: ContactFormData) {
+  return apiFetch<ContactSingleResponse>("/contacts", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 }
