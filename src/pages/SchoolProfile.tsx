@@ -3,16 +3,16 @@ import {
  getSchoolProfile,
  type SchoolProfile as SchoolProfileData,
 } from "../services/schoolProfile.service";
+
 import {
  getPrincipalHistories,
  type PrincipalHistory,
 } from "../services/principalHistory.service";
+
 import { getStaff, type Staff } from "../services/staff.service";
 
 function SchoolProfile() {
  const [profile, setProfile] = useState<SchoolProfileData | null>(null);
- const [loading, setLoading] = useState(true);
- const [error, setError] = useState("");
 
  const [principalHistories, setPrincipalHistories] = useState<
   PrincipalHistory[]
@@ -20,7 +20,13 @@ function SchoolProfile() {
 
  const [staff, setStaff] = useState<Staff[]>([]);
 
+ const [loading, setLoading] = useState(true);
+
+ const [error, setError] = useState("");
+
  useEffect(() => {
+  let mounted = true;
+
   async function loadData() {
    try {
     const [profileResponse, principalResponse, staffResponse] =
@@ -30,18 +36,31 @@ function SchoolProfile() {
       getStaff(),
      ]);
 
+    if (!mounted) {
+     return;
+    }
+
     setProfile(profileResponse.data);
     setPrincipalHistories(principalResponse.data);
     setStaff(staffResponse.data);
    } catch (error) {
     console.error("Gagal mengambil data profil sekolah:", error);
-    setError("Gagal mengambil data profil sekolah.");
+
+    if (mounted) {
+     setError("Gagal mengambil data profil sekolah.");
+    }
    } finally {
-    setLoading(false);
+    if (mounted) {
+     setLoading(false);
+    }
    }
   }
 
   loadData();
+
+  return () => {
+   mounted = false;
+  };
  }, []);
 
  if (loading) {
@@ -131,14 +150,12 @@ function SchoolProfile() {
     </h2>
 
     <div className="space-y-6 text-sm leading-6 text-gray-700 sm:text-base">
-     {/* Visi */}
      <div>
       <h3 className="mb-2 font-bold">Visi</h3>
 
       <p>{profile.vision || "Visi sekolah belum tersedia."}</p>
      </div>
 
-     {/* Misi */}
      <div>
       <h3 className="mb-2 font-bold">Misi</h3>
 
@@ -155,7 +172,7 @@ function SchoolProfile() {
     </div>
    </section>
 
-   {/* Riwayat Kepala Sekolah */}
+   {/* Pejabat Kepala Sekolah */}
    <section
     id="kepala-sekolah"
     className="mx-auto max-w-4xl px-6 pb-12 md:pb-16"
@@ -178,7 +195,9 @@ function SchoolProfile() {
 
          <span>
           <span className="font-medium">{item.period}</span>
+
           {" — "}
+
           <span className="font-semibold text-gray-800">{item.name}</span>
          </span>
         </li>
@@ -209,7 +228,6 @@ function SchoolProfile() {
         key={item.id}
         className="overflow-hidden rounded-xl bg-white shadow-sm"
        >
-        {/* Foto */}
         <div className="flex h-56 items-center justify-center bg-gray-300">
          {item.photoUrl ? (
           <img
@@ -222,7 +240,6 @@ function SchoolProfile() {
          )}
         </div>
 
-        {/* Informasi */}
         <div className="p-5">
          <h3 className="text-base font-bold text-gray-800">{item.name}</h3>
 

@@ -21,6 +21,7 @@ import {
  getSchoolProfile,
  type SchoolProfile,
 } from "../services/schoolProfile.service";
+import { logoutAdmin } from "../services/auth.service";
 
 function AdminLayout() {
  const [profile, setProfile] = useState<SchoolProfile | null>(null);
@@ -43,30 +44,11 @@ function AdminLayout() {
 
  const handleLogout = async () => {
   try {
-   const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
-
-   const token = sessionStorage.getItem("accessToken");
-
-   await fetch(`${apiUrl}/auth/logout`, {
-    method: "POST",
-    credentials: "include",
-    headers: token
-     ? {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-       }
-     : {
-        "Content-Type": "application/json",
-       },
-   });
-  } catch (error) {
-   console.error("Gagal logout:", error);
-  } finally {
-   sessionStorage.removeItem("accessToken");
-
-   localStorage.removeItem("rememberMe");
+   await logoutAdmin();
 
    window.location.href = "/login";
+  } catch (error) {
+   console.error("Gagal logout:", error);
   }
  };
 
@@ -78,12 +60,12 @@ function AdminLayout() {
   },
   {
    label: "Ekstrakurikuler",
-   path: "/admin/extracurriculars",
+   path: "/admin/ekstrakurikuler",
    icon: GraduationCap,
   },
   {
    label: "Prestasi",
-   path: "/admin/achievement",
+   path: "/admin/prestasi",
    icon: Trophy,
   },
   {

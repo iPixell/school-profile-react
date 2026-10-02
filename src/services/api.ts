@@ -1,207 +1,148 @@
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 interface RefreshResponse {
-  message: string;
-  accessToken: string;
+ message: string;
+ accessToken: string;
 }
 
 let isRefreshing = false;
 let refreshPromise: Promise<string | null> | null = null;
 
 async function refreshAccessToken(): Promise<string | null> {
-  if (isRefreshing && refreshPromise) {
-    return refreshPromise;
-  }
-
-  isRefreshing = true;
-
-  refreshPromise = (async () => {
-    try {
-      const response = await fetch(
-        `${API_URL}/auth/refresh`,
-        {
-          method: "POST",
-          credentials: "include",
-        },
-      );
-
-      const data =
-        (await response.json().catch(() => null)) as
-          | RefreshResponse
-          | null;
-
-      if (!response.ok || !data?.accessToken) {
-        return null;
-      }
-
-      sessionStorage.setItem(
-        "accessToken",
-        data.accessToken,
-      );
-
-      return data.accessToken;
-    } catch (error) {
-      console.error(
-        "Gagal melakukan refresh access token:",
-        error,
-      );
-
-      return null;
-    } finally {
-      isRefreshing = false;
-      refreshPromise = null;
-    }
-  })();
-
+ if (isRefreshing && refreshPromise) {
   return refreshPromise;
-}
+ }
 
-function clearSession() {
-  sessionStorage.removeItem("accessToken");
-  localStorage.removeItem("rememberMe");
-}
+ isRefreshing = true;
 
-function redirectToLogin() {
-  clearSession();
+ refreshPromise = (async () => {
+  try {
+   const response = await fetch(`${API_URL}/auth/refresh`, {
+    method: "POST",
+    credentials: "include",
+    cache: "no-store",
+   });
 
-  if (window.location.pathname !== "/login") {
-    window.location.href = "/login";
+   const data = (await response
+    .json()
+    .catch(() => null)) as RefreshResponse | null;
+
+   if (!response.ok || !data?.accessToken) {
+    return null;
+   }
+
+   // Simpan access token baru secara internal.
+   sessionStorage.setItem("accessToken", data.accessToken);
+
+   return data.accessToken;
+  } catch (error) {
+   console.error("Gagal melakukan refresh access token:", error);
+   return null;
+  } finally {
+   isRefreshing = false;
+   refreshPromise = null;
   }
+ })();
+
+ return refreshPromise;
+}
+
+export function clearSession() {
+ sessionStorage.removeItem("accessToken");
+ localStorage.removeItem("rememberMe");
 }
 
 export async function apiFetch<T>(
-  endpoint: string,
-  options?: RequestInit,
-  retry = true,
+ endpoint: string,
+ options?: RequestInit,
+ retry = true,
 ): Promise<T> {
-  let accessToken =
-    sessionStorage.getItem("accessToken");
+ let accessToken = sessionStorage.getItem("accessToken");
 
-  const headers = new Headers(options?.headers);
+ const headers = new Headers(options?.headers);
 
-  /**
-   * JSON hanya digunakan kalau body bukan FormData.
-   *
-   * Kalau FormData, Content-Type JANGAN dibuat manual.
-   * Browser yang akan membuat multipart boundary.
-   */
-  if (!(options?.body instanceof FormData)) {
-    headers.set(
-      "Content-Type",
-      "application/json",
-    );
-  }
+ // Jangan set Content-Type untuk FormData.
+ // Browser yang akan mengatur multipart/form-data boundary.
+ if (!(options?.body instanceof FormData)) {
+  headers.set("Content-Type", "application/json");
+ }
 
-  /**
-   * Access token otomatis dikirim
-   * untuk request yang membutuhkan login.
-   */
+ // Access token otomatis dikirim ke backend.
+ if (accessToken) {
+  headers.set("Authorization", `Bearer ${accessToken}`);
+ }
+
+ let response = await fetch(`${API_URL}${endpoint}`, {
+  ...options,
+  credentials: "include",
+  cache: "no-store",
+  headers,
+ });
+
+ /*
+  * Kalau access token expired:
+  *
+  * 1. Minta access token baru menggunakan refresh token.
+  * 2. Simpan access token baru.
+  * 3. Ulangi request awal.
+  *
+  * User tidak perlu tahu proses ini.
+  */
+ if (
+  response.status === 401 &&
+  retry &&
+  !endpoint.includes("/auth/login") &&
+  !endpoint.includes("/auth/refresh")
+ ) {
+  accessToken = await refreshAccessToken();
+
   if (accessToken) {
-    headers.set(
-      "Authorization",
-      `Bearer ${accessToken}`,
-    );
+   const retryHeaders = new Headers(options?.headers);
+
+   if (!(options?.body instanceof FormData)) {
+    retryHeaders.set("Content-Type", "application/json");
+   }
+
+   retryHeaders.set("Authorization", `Bearer ${accessToken}`);
+
+   response = await fetch(`${API_URL}${endpoint}`, {
+    ...options,
+    credentials: "include",
+    cache: "no-store",
+    headers: retryHeaders,
+   });
   }
+ }
 
-  let response = await fetch(
-    `${API_URL}${endpoint}`,
-    {
-      ...options,
-      credentials: "include",
-      headers,
-    },
-  );
+ const data = await response.json().catch(() => null);
 
-  /**
-   * Kalau access token expired:
+ if (!response.ok) {
+  /*
+   * PENTING:
    *
-   * 401
-   * ↓
-   * refresh token
-   * ↓
-   * dapat access token baru
-   * ↓
-   * ulang request awal
+   * Kalau ini login dan password salah,
+   * tampilkan pesan dari backend.
+   *
+   * Jangan ubah menjadi "Sesi login telah berakhir".
    */
-  if (
-    response.status === 401 &&
-    retry &&
-    !endpoint.includes("/auth/login") &&
-    !endpoint.includes("/auth/refresh")
-  ) {
-    accessToken = await refreshAccessToken();
-
-    if (accessToken) {
-      const retryHeaders = new Headers(
-        options?.headers,
-      );
-
-      if (
-        !(options?.body instanceof FormData)
-      ) {
-        retryHeaders.set(
-          "Content-Type",
-          "application/json",
-        );
-      }
-
-      retryHeaders.set(
-        "Authorization",
-        `Bearer ${accessToken}`,
-      );
-
-      response = await fetch(
-        `${API_URL}${endpoint}`,
-        {
-          ...options,
-          credentials: "include",
-          headers: retryHeaders,
-        },
-      );
-    } else {
-      /**
-       * Refresh token juga sudah tidak valid.
-       * Baru session dihentikan.
-       */
-      redirectToLogin();
-
-      throw new Error(
-        "Sesi login telah berakhir. Silakan login kembali.",
-      );
-    }
+  if (endpoint.includes("/auth/login")) {
+   throw new Error(data?.message || "Email atau password salah.");
   }
 
-  const data =
-    await response.json().catch(() => null);
+  /*
+   * Kalau request protected benar-benar gagal setelah
+   * refresh token dicoba, jangan redirect otomatis.
+   *
+   * User tetap berada di halaman admin.
+   */
+  if (response.status === 401) {
+   clearSession();
 
-  if (!response.ok) {
-    /**
-     * Pesan teknis auth tidak ditampilkan
-     * langsung kepada admin.
-     */
-    if (
-      response.status === 401 ||
-      data?.message ===
-        "Access token diperlukan" ||
-      data?.message ===
-        "Invalid access token" ||
-      data?.message ===
-        "Token expired"
-    ) {
-      redirectToLogin();
-
-      throw new Error(
-        "Sesi login telah berakhir. Silakan login kembali.",
-      );
-    }
-
-    throw new Error(
-      data?.message ||
-        `API Error: ${response.status}`,
-    );
+   throw new Error("Sesi login sudah tidak aktif. Silakan login kembali.");
   }
 
-  return data as T;
+  throw new Error(data?.message || `API Error: ${response.status}`);
+ }
+
+ return data as T;
 }

@@ -19,7 +19,10 @@ interface PrincipalHistorySingleResponse {
 }
 
 export async function getPrincipalHistories() {
- return apiFetch<PrincipalHistoryListResponse>("/principal-histories");
+ return apiFetch<PrincipalHistoryListResponse>("/principal-histories", {
+  method: "GET",
+  cache: "no-store",
+ });
 }
 
 export async function createPrincipalHistory(data: {

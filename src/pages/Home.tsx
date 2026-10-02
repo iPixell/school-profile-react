@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
  getSchoolProfile,
  type SchoolProfile,
@@ -35,7 +35,7 @@ function Home() {
       <p className="mb-2 text-sm sm:text-base">Selamat Datang di</p>
 
       <h1 className="text-2xl font-bold sm:text-3xl md:text-4xl">
-       SD NEGERI BAROS 3
+       {profile?.schoolName || "Nama Sekolah"}
       </h1>
 
       <p className="mt-2 text-sm sm:text-base">Belajar, Juara, Berkarakter</p>

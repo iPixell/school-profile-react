@@ -20,38 +20,49 @@ function Footer() {
  const [socialMedias, setSocialMedias] = useState<SocialMedia[]>([]);
 
  useEffect(() => {
+  let mounted = true;
+
   async function loadData() {
-   // Ambil data kontak
    try {
     const contactResponse = await getContacts();
 
-    setContact(contactResponse.data[0] ?? null);
+    if (mounted) {
+     setContact(contactResponse.data[0] ?? null);
+    }
    } catch (error) {
     console.error("Gagal mengambil data kontak:", error);
    }
 
-   // Ambil profil sekolah
    try {
     const schoolProfileResponse = await getSchoolProfile();
 
-    setSchoolProfile(schoolProfileResponse.data);
+    if (mounted) {
+     setSchoolProfile(schoolProfileResponse.data);
+    }
    } catch (error) {
     console.error("Gagal mengambil profil sekolah:", error);
    }
 
-   // Ambil media sosial
    try {
     const socialMediaResponse = await getSocialMedias();
 
-    setSocialMedias(socialMediaResponse.data);
+    if (mounted) {
+     setSocialMedias(socialMediaResponse.data);
+    }
    } catch (error) {
-    console.error("Gagal mengambil data media sosial:", error);
+    console.error("Gagal mengambil data sosial media:", error);
 
-    setSocialMedias([]);
+    if (mounted) {
+     setSocialMedias([]);
+    }
    }
   }
 
   loadData();
+
+  return () => {
+   mounted = false;
+  };
  }, []);
 
  const instagramUrl = socialMedias.find(
@@ -126,7 +137,6 @@ function Footer() {
      <h3 className="mb-5 text-base font-bold">Ikuti Kami</h3>
 
      <div className="flex items-center gap-4">
-      {/* Instagram */}
       <a
        href={instagramUrl || "#"}
        target="_blank"
@@ -137,7 +147,6 @@ function Footer() {
        <FaInstagram size={24} />
       </a>
 
-      {/* Facebook */}
       <a
        href={facebookUrl || "#"}
        target="_blank"
@@ -148,7 +157,6 @@ function Footer() {
        <FaFacebook size={24} />
       </a>
 
-      {/* YouTube */}
       <a
        href={youtubeUrl || "#"}
        target="_blank"

@@ -14,8 +14,10 @@ function PrincipalHistory() {
  const [search, setSearch] = useState("");
 
  const [name, setName] = useState("");
-
  const [period, setPeriod] = useState("");
+
+ const [nameError, setNameError] = useState("");
+ const [periodError, setPeriodError] = useState("");
 
  const [editingId, setEditingId] = useState<number | null>(null);
 
@@ -27,10 +29,6 @@ function PrincipalHistory() {
 
  const [success, setSuccess] = useState("");
 
- const [nameError, setNameError] = useState("");
-
- const [periodError, setPeriodError] = useState("");
-
  async function loadHistories() {
   try {
    setLoading(true);
@@ -39,12 +37,12 @@ function PrincipalHistory() {
    const response = await getPrincipalHistories();
 
    setHistories(response.data);
-  } catch (error) {
-   console.error("Gagal mengambil data:", error);
+  } catch (err) {
+   console.error(err);
 
    setError(
-    error instanceof Error
-     ? error.message
+    err instanceof Error
+     ? err.message
      : "Gagal mengambil data riwayat kepala sekolah.",
    );
   } finally {
@@ -60,10 +58,10 @@ function PrincipalHistory() {
   setName("");
   setPeriod("");
 
-  setEditingId(null);
-
   setNameError("");
   setPeriodError("");
+
+  setEditingId(null);
  }
 
  function handleEdit(item: PrincipalHistoryData) {
@@ -74,34 +72,36 @@ function PrincipalHistory() {
 
   setNameError("");
   setPeriodError("");
-
   setError("");
   setSuccess("");
+ }
+
+ function validateForm() {
+  let valid = true;
+
+  setNameError("");
+  setPeriodError("");
+
+  if (!name.trim()) {
+   setNameError("Nama kepala sekolah wajib diisi.");
+   valid = false;
+  }
+
+  if (!period.trim()) {
+   setPeriodError("Periode wajib diisi.");
+   valid = false;
+  }
+
+  return valid;
  }
 
  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
   e.preventDefault();
 
-  setNameError("");
-  setPeriodError("");
   setError("");
   setSuccess("");
 
-  let hasError = false;
-
-  if (!name.trim()) {
-   setNameError("Nama kepala sekolah wajib diisi.");
-
-   hasError = true;
-  }
-
-  if (!period.trim()) {
-   setPeriodError("Periode wajib diisi.");
-
-   hasError = true;
-  }
-
-  if (hasError) {
+  if (!validateForm()) {
    return;
   }
 
@@ -127,13 +127,11 @@ function PrincipalHistory() {
    resetForm();
 
    await loadHistories();
-  } catch (error) {
-   console.error("Gagal menyimpan data kepala sekolah:", error);
+  } catch (err) {
+   console.error(err);
 
    setError(
-    error instanceof Error
-     ? error.message
-     : "Gagal menyimpan data kepala sekolah.",
+    err instanceof Error ? err.message : "Gagal menyimpan data kepala sekolah.",
    );
   } finally {
    setSaving(false);
@@ -159,37 +157,26 @@ function PrincipalHistory() {
     resetForm();
    }
 
-   setSuccess("Data kepala sekolah berhasil dihapus.");
-
    await loadHistories();
-  } catch (error) {
-   console.error("Gagal menghapus data:", error);
+
+   setSuccess("Data kepala sekolah berhasil dihapus.");
+  } catch (err) {
+   console.error(err);
 
    setError(
-    error instanceof Error
-     ? error.message
-     : "Gagal menghapus data kepala sekolah.",
+    err instanceof Error ? err.message : "Gagal menghapus data kepala sekolah.",
    );
   }
  }
 
- const filteredHistories = histories.filter((item) => {
-  const keyword = search.toLowerCase().trim();
-
-  if (!keyword) {
-   return true;
-  }
-
-  return (
-   item.name.toLowerCase().includes(keyword) ||
-   item.period.toLowerCase().includes(keyword)
-  );
- });
+ const filteredHistories = histories.filter((item) =>
+  `${item.name} ${item.period}`.toLowerCase().includes(search.toLowerCase()),
+ );
 
  return (
-  <main className="min-h-screen bg-gray-100 p-1 sm:p-2 lg:p-4">
+  <main className="min-h-screen bg-gray-100 p-1 sm:p-2">
    <div className="mx-auto max-w-7xl">
-    {/* HEADER */}
+    {/* Header */}
     <div className="mb-6">
      <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">
       Riwayat Kepala Sekolah
@@ -200,14 +187,14 @@ function PrincipalHistory() {
      </p>
     </div>
 
-    {/* GLOBAL ERROR */}
+    {/* Global Error */}
     {error && (
      <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
       {error}
      </div>
     )}
 
-    {/* SUCCESS */}
+    {/* Success */}
     {success && (
      <div className="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-600">
       {success}
@@ -215,17 +202,10 @@ function PrincipalHistory() {
     )}
 
     <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-     {/* ================= TABLE ================= */}
-     <section className="min-w-0 rounded-xl bg-white p-5 shadow-sm sm:p-6">
-      {/* SEARCH */}
+     {/* TABLE */}
+     <section className="min-w-0 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5">
+      {/* Search */}
       <div className="mb-5">
-       <label
-        htmlFor="search-principal"
-        className="mb-2 block text-sm font-semibold text-gray-700"
-       >
-        Cari Data
-       </label>
-
        <div className="relative">
         <Search
          size={18}
@@ -233,98 +213,95 @@ function PrincipalHistory() {
         />
 
         <input
-         id="search-principal"
          type="text"
          value={search}
          onChange={(e) => setSearch(e.target.value)}
-         placeholder="Cari nama atau periode..."
+         placeholder="Cari kepala sekolah..."
          className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-[#B46000] focus:ring-2 focus:ring-[#B46000]/15"
         />
        </div>
       </div>
 
-      {/* TABLE */}
-      <div className="overflow-x-auto rounded-lg border border-gray-200">
-       <table className="w-full min-w-[620px] border-collapse">
-        <thead>
-         <tr className="bg-[#F8F1E8] text-left">
-          <th className="px-4 py-3 text-sm font-semibold text-gray-700">No</th>
+      {loading ? (
+       <div className="flex min-h-48 items-center justify-center">
+        <p className="text-sm text-gray-500">Memuat data...</p>
+       </div>
+      ) : (
+       <div className="overflow-x-auto">
+        <table className="w-full min-w-[600px] border-collapse">
+         <thead>
+          <tr className="bg-[#F5EBDD]">
+           <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+            No
+           </th>
 
-          <th className="px-4 py-3 text-sm font-semibold text-gray-700">
-           Nama Kepala Sekolah
-          </th>
+           <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+            Nama Kepala Sekolah
+           </th>
 
-          <th className="px-4 py-3 text-sm font-semibold text-gray-700">
-           Periode
-          </th>
+           <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+            Periode
+           </th>
 
-          <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-           Aksi
-          </th>
-         </tr>
-        </thead>
-
-        <tbody>
-         {loading ? (
-          <tr>
-           <td
-            colSpan={4}
-            className="px-4 py-10 text-center text-sm text-gray-500"
-           >
-            Memuat data...
-           </td>
+           <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+            Aksi
+           </th>
           </tr>
-         ) : filteredHistories.length === 0 ? (
-          <tr>
-           <td
-            colSpan={4}
-            className="px-4 py-10 text-center text-sm text-gray-500"
-           >
-            Belum ada data kepala sekolah.
-           </td>
-          </tr>
-         ) : (
-          filteredHistories.map((item, index) => (
-           <tr key={item.id} className="border-t border-gray-200">
-            <td className="px-4 py-4 text-sm text-gray-700">{index + 1}</td>
+         </thead>
 
-            <td className="px-4 py-4 text-sm font-medium text-gray-900">
-             {item.name}
-            </td>
+         <tbody>
+          {filteredHistories.length > 0 ? (
+           filteredHistories.map((item, index) => (
+            <tr key={item.id} className="border-b border-gray-100">
+             <td className="px-4 py-4 text-sm text-gray-600">{index + 1}</td>
 
-            <td className="px-4 py-4 text-sm text-gray-700">{item.period}</td>
+             <td className="px-4 py-4 text-sm font-medium text-gray-800">
+              {item.name}
+             </td>
 
-            <td className="px-4 py-4">
-             <div className="flex justify-center gap-2">
-              <button
-               type="button"
-               onClick={() => handleEdit(item)}
-               className="rounded-lg p-2 text-[#B46000] transition hover:bg-[#B46000]/10"
-               aria-label="Edit data"
-              >
-               <Pencil size={17} />
-              </button>
+             <td className="px-4 py-4 text-sm text-gray-600">{item.period}</td>
 
-              <button
-               type="button"
-               onClick={() => handleDelete(item.id)}
-               className="rounded-lg p-2 text-red-500 transition hover:bg-red-50"
-               aria-label="Hapus data"
-              >
-               <Trash2 size={17} />
-              </button>
-             </div>
+             <td className="px-4 py-4">
+              <div className="flex justify-center gap-2">
+               <button
+                type="button"
+                onClick={() => handleEdit(item)}
+                className="rounded-lg p-2 text-[#B46000] transition hover:bg-[#B46000]/10"
+                aria-label={`Edit ${item.name}`}
+               >
+                <Pencil size={17} />
+               </button>
+
+               <button
+                type="button"
+                onClick={() => handleDelete(item.id)}
+                className="rounded-lg p-2 text-red-500 transition hover:bg-red-50"
+                aria-label={`Hapus ${item.name}`}
+               >
+                <Trash2 size={17} />
+               </button>
+              </div>
+             </td>
+            </tr>
+           ))
+          ) : (
+           <tr>
+            <td
+             colSpan={4}
+             className="px-4 py-12 text-center text-sm text-gray-500"
+            >
+             Belum ada data kepala sekolah.
             </td>
            </tr>
-          ))
-         )}
-        </tbody>
-       </table>
-      </div>
+          )}
+         </tbody>
+        </table>
+       </div>
+      )}
      </section>
 
-     {/* ================= FORM ================= */}
-     <section className="rounded-xl bg-white p-5 shadow-sm sm:p-6">
+     {/* FORM */}
+     <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
       <div className="mb-5">
        <h2 className="text-lg font-bold text-gray-900">
         {editingId !== null ? "Edit Kepala Sekolah" : "Tambah Kepala Sekolah"}
@@ -338,7 +315,7 @@ function PrincipalHistory() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-       {/* NAME */}
+       {/* Nama */}
        <div>
         <label
          htmlFor="principal-name"
@@ -354,7 +331,6 @@ function PrincipalHistory() {
          value={name}
          onChange={(e) => {
           setName(e.target.value);
-
           setNameError("");
           setError("");
           setSuccess("");
@@ -372,7 +348,7 @@ function PrincipalHistory() {
         )}
        </div>
 
-       {/* PERIOD */}
+       {/* Periode */}
        <div>
         <label
          htmlFor="principal-period"
@@ -388,7 +364,6 @@ function PrincipalHistory() {
          value={period}
          onChange={(e) => {
           setPeriod(e.target.value);
-
           setPeriodError("");
           setError("");
           setSuccess("");
@@ -406,28 +381,30 @@ function PrincipalHistory() {
         )}
        </div>
 
-       {/* ACTION */}
-       <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row">
-        <button
-         type="button"
-         onClick={resetForm}
-         disabled={saving}
-         className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto sm:flex-1"
-        >
-         Batal
-        </button>
-
+       {/* Buttons */}
+       <div className="flex flex-col gap-3 pt-2 sm:flex-row">
         <button
          type="submit"
          disabled={saving}
-         className="w-full rounded-lg bg-[#B46000] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#944F00] disabled:cursor-not-allowed disabled:opacity-60 sm:flex-1"
+         className="w-full rounded-lg bg-[#B46000] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#944F00] disabled:cursor-not-allowed disabled:opacity-60"
         >
          {saving
           ? "Menyimpan..."
           : editingId !== null
             ? "Simpan Perubahan"
-            : "Simpan"}
+            : "Tambah Data"}
         </button>
+
+        {editingId !== null && (
+         <button
+          type="button"
+          onClick={resetForm}
+          disabled={saving}
+          className="w-full rounded-lg border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+         >
+          Batal
+         </button>
+        )}
        </div>
       </form>
      </section>

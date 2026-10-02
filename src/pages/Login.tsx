@@ -67,9 +67,7 @@ function Login() {
   try {
    setIsLoading(true);
 
-   const data = await loginAdmin(email.trim(), password);
-
-   sessionStorage.setItem("accessToken", data.accessToken);
+   await loginAdmin(email.trim(), password);
 
    if (rememberMe) {
     localStorage.setItem("rememberMe", "true");
@@ -77,7 +75,7 @@ function Login() {
     localStorage.removeItem("rememberMe");
    }
 
-   navigate("/home");
+   navigate("/admin/profil-sekolah");
   } catch (error) {
    if (error instanceof Error) {
     setLoginError(error.message);

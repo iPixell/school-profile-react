@@ -1,26 +1,52 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Menu, X } from "lucide-react";
 import { NavLink } from 'react-router-dom';
 import { getSchoolProfile } from "../services/schoolProfile.service";
 
 const navItems = [
- { label: "Home", path: "/" },
- { label: "Profil Sekolah", path: "/profil-sekolah" },
- { label: "Ekstrakurikuler", path: "/ekstrakurikuler" },
- { label: "Sarana & Prasarana", path: "/sarana-prasarana" },
- { label: "Informasi SPMB", path: "/spmb" },
- { label: "Kontak Kami", path: "/kontak" },
+ {
+  label: "Home",
+  path: "/",
+ },
+ {
+  label: "Profil Sekolah",
+  path: "/profil-sekolah",
+ },
+ {
+  label: "Ekstrakurikuler",
+  path: "/ekstrakurikuler",
+ },
+ {
+  label: "Sarana & Prasarana",
+  path: "/sarana-prasarana",
+ },
+ {
+  label: "Informasi SPMB",
+  path: "/spmb",
+ },
+ {
+  label: "Kontak Kami",
+  path: "/kontak",
+ },
 ];
 
 function Navbar() {
  const [isOpen, setIsOpen] = useState(false);
+
  const [schoolName, setSchoolName] = useState("SD NEGERI BAROS 3");
+
  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
  useEffect(() => {
+  let mounted = true;
+
   async function loadSchoolProfile() {
    try {
     const response = await getSchoolProfile();
+
+    if (!mounted) {
+     return;
+    }
 
     setSchoolName(response.data.schoolName);
     setLogoUrl(response.data.logoUrl);
@@ -30,24 +56,28 @@ function Navbar() {
   }
 
   loadSchoolProfile();
+
+  return () => {
+   mounted = false;
+  };
  }, []);
 
  return (
   <header className="border-b border-gray-100 bg-white">
    <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
     {/* Logo + Nama Sekolah */}
-    <NavLink to="/" className="flex items-center gap-3">
+    <NavLink to="/" end className="flex min-w-0 items-center gap-3">
      {logoUrl ? (
       <img
        src={logoUrl}
        alt={`Logo ${schoolName}`}
-       className="h-10 w-10 rounded-full object-cover"
+       className="h-10 w-10 shrink-0 rounded-full object-cover"
       />
      ) : (
-      <div className="h-10 w-10 rounded-full bg-gray-200" />
+      <div className="h-10 w-10 shrink-0 rounded-full bg-gray-200" />
      )}
 
-     <span className="text-sm font-bold">{schoolName}</span>
+     <span className="truncate text-sm font-bold">{schoolName}</span>
     </NavLink>
 
     {/* Desktop */}
@@ -56,6 +86,7 @@ function Navbar() {
       <NavLink
        key={item.path}
        to={item.path}
+       end={item.path === "/"}
        className={({ isActive }) =>
         `text-sm font-medium ${
          isActive ? "text-amber-600" : "text-gray-700 hover:text-amber-600"
@@ -71,8 +102,8 @@ function Navbar() {
     <button
      type="button"
      className="md:hidden"
-     onClick={() => setIsOpen(!isOpen)}
-     aria-label="Toggle menu"
+     onClick={() => setIsOpen((prev) => !prev)}
+     aria-label={isOpen ? "Tutup menu" : "Buka menu"}
     >
      {isOpen ? <X size={25} /> : <Menu size={25} />}
     </button>
@@ -86,6 +117,7 @@ function Navbar() {
        <NavLink
         key={item.path}
         to={item.path}
+        end={item.path === "/"}
         onClick={() => setIsOpen(false)}
         className={({ isActive }) =>
          `text-sm font-medium ${isActive ? "text-amber-600" : "text-gray-700"}`
