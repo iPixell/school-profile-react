@@ -1,21 +1,44 @@
 import { apiFetch } from "./api";
 
 export interface ExtracurricularMedia {
- id: number;
- extracurricularId: number;
- type: "IMAGE" | "VIDEO";
- url: string;
- createdAt: string;
- updatedAt: string;
+    id: number;
+    extracurricularId: number;
+    type: "IMAGE" | "VIDEO";
+    url: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
-interface ExtracurricularMediaResponse {
- message: string;
- data: ExtracurricularMedia[];
+interface MediaListResponse {
+    message: string;
+    data: ExtracurricularMedia[];
 }
 
-export async function getExtracurricularMedia(extracurricularId: number) {
- return apiFetch<ExtracurricularMediaResponse>(
-  `/extracurriculars/${extracurricularId}/media`,
- );
+interface MediaResponse {
+    message: string;
+    data: ExtracurricularMedia;
+}
+
+export async function getExtracurricularMedia(
+    extracurricularId: number,
+) {
+    return apiFetch<MediaListResponse>(
+        `/extracurriculars/${extracurricularId}/media`,
+    );
+}
+
+export async function uploadExtracurricularMedia(
+    extracurricularId: number,
+    file: File,
+) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return apiFetch<MediaResponse>(
+        `/extracurriculars/${extracurricularId}/media`,
+        {
+            method: "POST",
+            body: formData,
+        },
+    );
 }

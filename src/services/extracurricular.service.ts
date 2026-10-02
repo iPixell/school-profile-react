@@ -1,3 +1,4 @@
+
 import { apiFetch } from "./api";
 
 export type Extracurricular = {
@@ -22,34 +23,44 @@ export function getExtracurriculars() {
   return apiFetch<ListResponse>("/extracurriculars");
 }
 
-export function createExtracurricular(data: {
-  name: string;
-  photoUrl?: string;
-}) {
+export function createExtracurricular(
+  name: string,
+  photo?: File | null,
+) {
+  const formData = new FormData();
+  formData.append("name", name);
+
+  if (photo) {
+    formData.append("photo", photo);
+  }
+
   return apiFetch<ItemResponse>("/extracurriculars", {
     method: "POST",
-    body: JSON.stringify(data),
+    body: formData,
   });
 }
 
 export function updateExtracurricular(
   id: number,
-  data: {
-    name: string;
-    photoUrl?: string;
-  },
+  name: string,
+  photo?: File | null,
 ) {
+  const formData = new FormData();
+  formData.append("name", name);
+
+  if (photo) {
+    formData.append("photo", photo);
+  }
+
   return apiFetch<ItemResponse>(`/extracurriculars/${id}`, {
     method: "PUT",
-    body: JSON.stringify(data),
+    body: formData,
   });
 }
 
 export function deleteExtracurricular(id: number) {
   return apiFetch<{ message: string }>(
     `/extracurriculars/${id}`,
-    {
-      method: "DELETE",
-    },
+    { method: "DELETE" },
   );
 }

@@ -1,9 +1,9 @@
 export interface Achievement {
-  id: string;
-  name: string;
+  id: number | string;
+  competition: string;
   studentName: string;
   rank: string;
   level: string;
   year: number;
-  photoUrl?: string;
+  photoUrl: string | null;
 }
