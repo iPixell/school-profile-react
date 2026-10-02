@@ -1,63 +1,52 @@
 import { apiFetch } from "./api";
 
-export type PrincipalHistory = {
-  id: number;
-  name: string;
-  period: string;
-  createdAt: string;
-  updatedAt: string;
-};
-
-type PrincipalHistoryListResponse = {
-  message: string;
-  data: PrincipalHistory[];
-};
-
-type PrincipalHistoryResponse = {
-  message: string;
-  data: PrincipalHistory;
-};
-
-export function getPrincipalHistories() {
-  return apiFetch<PrincipalHistoryListResponse>(
-    "/principal-histories",
-  );
+export interface PrincipalHistory {
+ id: number;
+ name: string;
+ period: string;
+ createdAt: string;
+ updatedAt: string;
 }
 
-export function createPrincipalHistory(data: {
-  name: string;
-  period: string;
+interface PrincipalHistoryListResponse {
+ message: string;
+ data: PrincipalHistory[];
+}
+
+interface PrincipalHistorySingleResponse {
+ message: string;
+ data: PrincipalHistory;
+}
+
+export async function getPrincipalHistories() {
+ return apiFetch<PrincipalHistoryListResponse>("/principal-histories");
+}
+
+export async function createPrincipalHistory(data: {
+ name: string;
+ period: string;
 }) {
-  return apiFetch<PrincipalHistoryResponse>(
-    "/principal-histories",
-    {
-      method: "POST",
-      body: JSON.stringify(data),
-    },
-  );
+ return apiFetch<PrincipalHistorySingleResponse>("/principal-histories", {
+  method: "POST",
+  body: JSON.stringify(data),
+ });
 }
 
-export function updatePrincipalHistory(
-  id: number,
-  data: {
-    name: string;
-    period: string;
-  },
+export async function updatePrincipalHistory(
+ id: number,
+ data: {
+  name: string;
+  period: string;
+ },
 ) {
-  return apiFetch<PrincipalHistoryResponse>(
-    `/principal-histories/${id}`,
-    {
-      method: "PUT",
-      body: JSON.stringify(data),
-    },
-  );
+ return apiFetch<PrincipalHistorySingleResponse>(`/principal-histories/${id}`, {
+  method: "PUT",
+  body: JSON.stringify(data),
+ });
 }
 
-export function deletePrincipalHistory(id: number) {
-  return apiFetch<{ message: string }>(
-    `/principal-histories/${id}`,
-    {
-      method: "DELETE",
-    },
-  );
+export async function deletePrincipalHistory(id: number) {
+ return apiFetch<{ message: string }>(`/principal-histories/${id}`, {
+  method: "DELETE",
+ });
 }
