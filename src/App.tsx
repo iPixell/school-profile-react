@@ -1,6 +1,13 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+
+// Layouts
 import PublicLayout from "./layouts/PublicLayout";
 import AdminLayout from "./layouts/AdminLayout";
+
+// Routes
+import AdminRoute from "./routes/AdminRoute";
+
+// Public Pages
 import Home from "./pages/Home";
 import Achievements from "./pages/Achievements";
 import SchoolProfile from "./pages/SchoolProfile";
@@ -9,93 +16,160 @@ import ExtracurricularDetail from "./pages/ExtracurricularDetail";
 import Facilities from "./pages/Facilities";
 import SPMB from "./pages/SPMB";
 import Contact from "./pages/Contact";
+
+// Auth Pages
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetLinkSent from "./pages/ResetLinkSent";
 import ResetPassword from "./pages/ResetPassword";
 import ResetPasswordSuccess from "./pages/ResetPasswordSuccess";
+
+// Admin Pages
 import AdminSchoolProfile from "./pages/admin/SchoolProfile";
 import PrincipalHistory from "./pages/admin/PrincipalHistory";
-import AdminRoute from "./routes/AdminRoute";
 import AdminSPMB from "./pages/admin/SPMB";
 import AdminFacilities from "./pages/admin/Facilities";
 import AdminContact from "./pages/admin/Contact";
+import Staff from "./pages/admin/Staff";
+import Achievement from "./pages/admin/Achievement";
+import Eskul from "./pages/admin/Extracurricular";
+import ExtracurricularMedia from "./pages/admin/ExtracurricularMedia";
 
 function App() {
-    return (
-        <BrowserRouter>
-            <Routes>
-                {/* =========================
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* =========================
             PUBLIC WEBSITE
         ========================== */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
 
-                <Route element={<PublicLayout />}>
-                    <Route path="/" element={<Home />} />
+          <Route path="/prestasi" element={<Achievements />} />
 
-                    <Route path="/home" element={<Home />} />
+          <Route
+            path="/profil-sekolah"
+            element={<SchoolProfile />}
+          />
 
-                    <Route path="/prestasi" element={<Achievements />} />
+          <Route
+            path="/ekstrakurikuler"
+            element={<Extracurricular />}
+          />
 
-                    <Route path="/profil-sekolah" element={<SchoolProfile />} />
+          <Route
+            path="/ekstrakurikuler/:id"
+            element={<ExtracurricularDetail />}
+          />
 
-                    <Route path="/ekstrakurikuler" element={<Extracurricular />} />
+          <Route
+            path="/sarana-prasarana"
+            element={<Facilities />}
+          />
 
-                    <Route path="/ekstrakurikuler/:id" element={<ExtracurricularDetail />} />
+          <Route path="/spmb" element={<SPMB />} />
 
-                    <Route path="/sarana-prasarana" element={<Facilities />} />
+          <Route path="/kontak" element={<Contact />} />
+        </Route>
 
-                    <Route path="/spmb" element={<SPMB />} />
-
-                    <Route path="/kontak" element={<Contact />} />
-                </Route>
-
-                {/* =========================
-            ADMIN AUTH
+        {/* =========================
+            AUTH
         ========================== */}
+        <Route path="/login" element={<Login />} />
 
-                <Route path="/login" element={<Login />} />
+        <Route
+          path="/forgot-password"
+          element={<ForgotPassword />}
+        />
 
-                <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route
+          path="/reset-link-sent"
+          element={<ResetLinkSent />}
+        />
 
-                <Route path="/reset-link-sent" element={<ResetLinkSent />} />
+        <Route
+          path="/reset-password"
+          element={<ResetPassword />}
+        />
 
-                <Route path="/reset-password" element={<ResetPassword />} />
+        <Route
+          path="/reset-password/success"
+          element={<ResetPasswordSuccess />}
+        />
 
-                <Route path="/reset-password/success" element={<ResetPasswordSuccess />} />
-
-                {/* =========================
+        {/* =========================
             PROTECTED ADMIN PANEL
         ========================== */}
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }
+        >
+          {/* Profil Sekolah */}
+          <Route
+            index
+            element={<AdminSchoolProfile />}
+          />
 
-                <Route
-                    path="/admin"
-                    element={
-                        <AdminRoute>
-                            <AdminLayout />
-                        </AdminRoute>
-                    }
-                >
-                    <Route index element={<AdminSchoolProfile />} />
+          <Route
+            path="profil-sekolah"
+            element={<AdminSchoolProfile />}
+          />
 
-                    <Route path="profil-sekolah" element={<AdminSchoolProfile />} />
+          {/* Riwayat Kepala Sekolah */}
+          <Route
+            path="principal-history"
+            element={<PrincipalHistory />}
+          />
 
-                    <Route path="principal-history" element={<PrincipalHistory />} />
-                    <Route
-                        path="spmb"
-                        element={<AdminSPMB />}
-                    />
-                    <Route
-                        path="facilities"
-                        element={<AdminFacilities />}
-                    />
-                    <Route
-                        path="contact"
-                        element={<AdminContact />}
-                    />
-                </Route>
-            </Routes>
-        </BrowserRouter>
-    );
+          {/* Guru & Tenaga Administrasi */}
+          <Route
+            path="staff"
+            element={<Staff />}
+          />
+
+          {/* Prestasi */}
+          <Route
+            path="prestasi"
+            element={<Achievement />}
+          />
+
+          {/* Ekstrakurikuler */}
+          <Route
+            path="ekstrakurikuler"
+            element={<Eskul />}
+          />
+
+          <Route
+            path="ekstrakurikuler/:id/media"
+            element={<ExtracurricularMedia />}
+          />
+
+          {/* Fasilitas */}
+          <Route
+            path="facilities"
+            element={<AdminFacilities />}
+          />
+
+          {/* SPMB */}
+          <Route
+            path="spmb"
+            element={<AdminSPMB />}
+          />
+
+          {/* Kontak */}
+          <Route
+            path="contact"
+            element={<AdminContact />}
+          />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;

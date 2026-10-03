@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import {
+  MapPin,
+  Phone,
+  Mail,
+  MessageCircle,
+  Globe,
+  Map,
+} from "lucide-react";
 
 import {
   createContact,
@@ -12,12 +20,11 @@ import type {
 } from "../../services/contact.service";
 
 function ContactPage() {
-  const [data, setData] = useState<Contact[]>([]);
+  const [data, setData] = useState<Contact | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [success, setSuccess] = useState("");
 
   const [form, setForm] = useState<ContactFormData>({
     address: "",
@@ -34,7 +41,20 @@ function ContactPage() {
       setError("");
 
       const response = await getContacts();
-      setData(response.data);
+      const item = response.data?.[0] ?? null;
+
+      setData(item);
+
+      if (item) {
+        setForm({
+          address: item.address ?? "",
+          phone: item.phone ?? "",
+          email: item.email ?? "",
+          whatsapp: item.whatsapp ?? "",
+          location: item.location ?? "",
+          googleMaps: item.googleMaps ?? "",
+        });
+      }
     } catch (err) {
       setError(
         err instanceof Error
@@ -60,53 +80,47 @@ function ContactPage() {
     }));
   }
 
-  function resetForm() {
-    setForm({
-      address: "",
-      phone: "",
-      email: "",
-      whatsapp: "",
-      location: "",
-      googleMaps: "",
-    });
-  }
-
-  function openForm() {
-    resetForm();
-    setError("");
-    setIsFormOpen(true);
-  }
-
-  function closeForm() {
-    if (saving) {
-      return;
+  function handleCancel() {
+    if (data) {
+      setForm({
+        address: data.address ?? "",
+        phone: data.phone ?? "",
+        email: data.email ?? "",
+        whatsapp: data.whatsapp ?? "",
+        location: data.location ?? "",
+        googleMaps: data.googleMaps ?? "",
+      });
+    } else {
+      setForm({
+        address: "",
+        phone: "",
+        email: "",
+        whatsapp: "",
+        location: "",
+        googleMaps: "",
+      });
     }
 
-    setIsFormOpen(false);
-    resetForm();
+    setError("");
+    setSuccess("");
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!form.address.trim()) {
-      setError("Alamat wajib diisi.");
-      return;
-    }
-
-    if (!form.phone.trim()) {
-      setError("Nomor telepon wajib diisi.");
-      return;
-    }
-
-    if (!form.email.trim()) {
-      setError("Email wajib diisi.");
+    if (
+      !form.address.trim() ||
+      !form.phone.trim() ||
+      !form.email.trim()
+    ) {
+      setError("Alamat, nomor telepon, dan email wajib diisi.");
       return;
     }
 
     try {
       setSaving(true);
       setError("");
+      setSuccess("");
 
       await createContact({
         address: form.address.trim(),
@@ -118,9 +132,7 @@ function ContactPage() {
       });
 
       await loadContacts();
-
-      setIsFormOpen(false);
-      resetForm();
+      setSuccess("Informasi kontak berhasil disimpan.");
     } catch (err) {
       setError(
         err instanceof Error
@@ -132,307 +144,172 @@ function ContactPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <section className="min-h-[calc(100vh-48px)] bg-white p-5">
+        <p className="text-sm text-gray-500">
+          Memuat data kontak...
+        </p>
+      </section>
+    );
+  }
+
+  const fields = [
+    {
+      label: "Alamat",
+      key: "address" as const,
+      icon: MapPin,
+      placeholder: "Masukkan alamat sekolah",
+      type: "textarea",
+    },
+    {
+      label: "Nomor Telepon",
+      key: "phone" as const,
+      icon: Phone,
+      placeholder: "Contoh: 02112345678",
+      type: "tel",
+    },
+    {
+      label: "Email",
+      key: "email" as const,
+      icon: Mail,
+      placeholder: "contoh@sekolah.sch.id",
+      type: "email",
+    },
+    {
+      label: "WhatsApp",
+      key: "whatsapp" as const,
+      icon: MessageCircle,
+      placeholder: "Contoh: 628123456789",
+      type: "tel",
+    },
+    {
+      label: "Lokasi",
+      key: "location" as const,
+      icon: Globe,
+      placeholder: "Contoh: Kota Sukabumi",
+      type: "text",
+    },
+    {
+      label: "Link Google Maps",
+      key: "googleMaps" as const,
+      icon: Map,
+      placeholder: "https://maps.google.com/...",
+      type: "url",
+    },
+  ];
+
   return (
-    <main className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <section className="min-h-[calc(100vh-48px)] bg-white px-2 py-3 sm:px-3 sm:py-4">
       {/* Header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Kontak
-          </h1>
-
-          <p className="mt-1 text-sm text-gray-500">
-            Kelola informasi kontak sekolah.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={openForm}
-          className="w-full rounded-lg bg-amber-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-600 sm:w-auto"
-        >
-          + Tambah Kontak
-        </button>
+      <div className="mb-8">
+        <h1 className="text-xl font-bold text-black">
+          Kontak Sekolah
+        </h1>
+        <p className="mt-1 text-sm text-gray-500">
+          Kelola informasi kontak dan lokasi sekolah
+        </p>
       </div>
 
-      {/* Error */}
+      {/* Pesan */}
       {error && (
-        <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           {error}
         </div>
       )}
 
-      {/* Content */}
-      {loading ? (
-        <div className="rounded-xl bg-white p-8 text-center shadow-sm">
-          <p className="text-sm text-gray-500">
-            Memuat data kontak...
-          </p>
+      {success && (
+        <div className="mb-4 rounded border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+          {success}
         </div>
-      ) : data.length === 0 ? (
-        <div className="rounded-xl bg-white p-8 text-center shadow-sm">
-          <p className="text-sm text-gray-500">
-            Belum ada data kontak.
-          </p>
+      )}
 
-          <button
-            type="button"
-            onClick={openForm}
-            className="mt-4 rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600"
-          >
-            Tambah Kontak
-          </button>
-        </div>
-      ) : (
-        <div className="grid gap-6 lg:grid-cols-2">
-          {data.map((item) => (
-            <article
-              key={item.id}
-              className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-gray-100 sm:p-6"
-            >
-              <h2 className="mb-5 text-lg font-bold text-gray-900">
-                Informasi Kontak
-              </h2>
+      {/* Form */}
+      <form onSubmit={handleSubmit}>
+        <div className="rounded border border-gray-300 bg-white p-4 shadow-sm sm:p-6">
+          <h2 className="mb-5 text-sm font-bold text-black">
+            Informasi Kontak
+          </h2>
 
-              <div className="space-y-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                    Alamat
-                  </p>
-                  <p className="mt-1 text-sm leading-6 text-gray-700">
-                    {item.address}
-                  </p>
-                </div>
+          <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
+            {fields.map((field) => {
+              const Icon = field.icon;
 
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                    Telepon
-                  </p>
-                  <p className="mt-1 text-sm text-gray-700">
-                    {item.phone}
-                  </p>
-                </div>
+              return (
+                <div
+                  key={field.key}
+                  className={
+                    field.key === "address"
+                      ? "md:col-span-2"
+                      : ""
+                  }
+                >
+                  <label className="mb-1 flex items-center gap-2 text-xs font-semibold text-black">
+                    <Icon size={14} className="text-orange-600" />
+                    {field.label}
+                    {["address", "phone", "email"].includes(
+                      field.key,
+                    ) && <span className="text-red-600">*</span>}
+                  </label>
 
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                    Email
-                  </p>
-                  <p className="mt-1 break-all text-sm text-gray-700">
-                    {item.email}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                    WhatsApp
-                  </p>
-                  <p className="mt-1 text-sm text-gray-700">
-                    {item.whatsapp || "-"}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                    Lokasi
-                  </p>
-                  <p className="mt-1 text-sm text-gray-700">
-                    {item.location || "-"}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                    Google Maps
-                  </p>
-
-                  {item.googleMaps ? (
-                    <a
-                      href={item.googleMaps}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-1 block break-all text-sm font-medium text-amber-600 hover:underline"
-                    >
-                      Buka Google Maps
-                    </a>
+                  {field.type === "textarea" ? (
+                    <textarea
+                      value={form[field.key]}
+                      onChange={(event) =>
+                        handleChange(
+                          field.key,
+                          event.target.value,
+                        )
+                      }
+                      placeholder={field.placeholder}
+                      rows={3}
+                      required
+                      className="w-full resize-none rounded border border-gray-400 px-3 py-2 text-xs outline-none transition focus:border-orange-500 focus:ring-1 focus:ring-orange-200"
+                    />
                   ) : (
-                    <p className="mt-1 text-sm text-gray-700">
-                      -
-                    </p>
+                    <input
+                      type={field.type}
+                      value={form[field.key]}
+                      onChange={(event) =>
+                        handleChange(
+                          field.key,
+                          event.target.value,
+                        )
+                      }
+                      placeholder={field.placeholder}
+                      required={["phone", "email"].includes(
+                        field.key,
+                      )}
+                      className="h-9 w-full rounded border border-gray-400 px-3 text-xs outline-none transition focus:border-orange-500 focus:ring-1 focus:ring-orange-200"
+                    />
                   )}
                 </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
-
-      {/* Modal */}
-      {isFormOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:p-6">
-          <div className="my-4 w-full max-w-2xl rounded-2xl bg-white shadow-xl sm:my-8">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b px-5 py-4 sm:px-6">
-              <h2 className="text-lg font-bold text-gray-900">
-                Tambah Kontak
-              </h2>
-
-              <button
-                type="button"
-                onClick={closeForm}
-                className="rounded-lg px-3 py-1 text-xl text-gray-500 hover:bg-gray-100"
-              >
-                ×
-              </button>
-            </div>
-
-            {/* Form */}
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-5 p-5 sm:p-6">
-                {/* Address */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Alamat
-                  </label>
-
-                  <textarea
-                    value={form.address}
-                    onChange={(event) =>
-                      handleChange(
-                        "address",
-                        event.target.value,
-                      )
-                    }
-                    placeholder="Masukkan alamat sekolah"
-                    rows={3}
-                    className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
-                  />
-                </div>
-
-                {/* Phone */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Nomor Telepon
-                  </label>
-
-                  <input
-                    type="tel"
-                    value={form.phone}
-                    onChange={(event) =>
-                      handleChange(
-                        "phone",
-                        event.target.value,
-                      )
-                    }
-                    placeholder="Contoh: 02112345678"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
-                  />
-                </div>
-
-                {/* Email */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Email
-                  </label>
-
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={(event) =>
-                      handleChange(
-                        "email",
-                        event.target.value,
-                      )
-                    }
-                    placeholder="contoh@sekolah.sch.id"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
-                  />
-                </div>
-
-                {/* WhatsApp */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    WhatsApp
-                  </label>
-
-                  <input
-                    type="tel"
-                    value={form.whatsapp}
-                    onChange={(event) =>
-                      handleChange(
-                        "whatsapp",
-                        event.target.value,
-                      )
-                    }
-                    placeholder="Contoh: 628123456789"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
-                  />
-                </div>
-
-                {/* Location */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Lokasi
-                  </label>
-
-                  <input
-                    type="text"
-                    value={form.location}
-                    onChange={(event) =>
-                      handleChange(
-                        "location",
-                        event.target.value,
-                      )
-                    }
-                    placeholder="Contoh: Kota Sukabumi"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
-                  />
-                </div>
-
-                {/* Google Maps */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Link Google Maps
-                  </label>
-
-                  <input
-                    type="url"
-                    value={form.googleMaps}
-                    onChange={(event) =>
-                      handleChange(
-                        "googleMaps",
-                        event.target.value,
-                      )
-                    }
-                    placeholder="https://maps.google.com/..."
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
-                  />
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex flex-col-reverse gap-3 border-t bg-gray-50 p-5 sm:flex-row sm:justify-end sm:px-6">
-                <button
-                  type="button"
-                  onClick={closeForm}
-                  disabled={saving}
-                  className="rounded-lg border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-                >
-                  Batal
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="rounded-lg bg-amber-500 px-5 py-3 text-sm font-semibold text-white hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {saving ? "Menyimpan..." : "Simpan"}
-                </button>
-              </div>
-            </form>
+              );
+            })}
           </div>
         </div>
-      )}
-    </main>
+
+        {/* Tombol */}
+        <div className="mt-4 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={handleCancel}
+            disabled={saving}
+            className="rounded border border-gray-400 bg-white px-5 py-2 text-xs font-medium text-gray-800 transition hover:bg-gray-100 disabled:opacity-50"
+          >
+            Batal
+          </button>
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="rounded bg-[#F5820B] px-6 py-2 text-xs font-semibold text-white transition hover:bg-orange-600 disabled:opacity-50"
+          >
+            {saving ? "Menyimpan..." : "Simpan"}
+          </button>
+        </div>
+      </form>
+    </section>
   );
 }
 

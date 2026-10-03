@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
+import { Search, Pencil, Trash2, ImagePlus } from "lucide-react";
 
 import {
   createFacility,
@@ -15,10 +16,9 @@ function Facilities() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
@@ -28,7 +28,6 @@ function Facilities() {
     try {
       setLoading(true);
       setError("");
-
       const response = await getFacilities();
       setData(response.data);
     } catch (err) {
@@ -46,6 +45,10 @@ function Facilities() {
     loadFacilities();
   }, []);
 
+  const filteredData = data.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase()),
+  );
+
   function resetForm() {
     setName("");
     setDescription("");
@@ -54,38 +57,21 @@ function Facilities() {
     setEditingId(null);
   }
 
-  function openAddForm() {
-    resetForm();
-    setIsFormOpen(true);
-  }
-
-  function openEditForm(item: Facility) {
-    setEditingId(item.id);
-    setName(item.name);
-    setDescription(item.description ?? "");
-    setPhoto(null);
-    setPreview(item.photoUrl ?? "");
-    setIsFormOpen(true);
-  }
-
   function handlePhotoChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
-
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     setPhoto(file);
     setPreview(URL.createObjectURL(file));
   }
 
-  function closeForm() {
-    if (saving) {
-      return;
-    }
-
-    setIsFormOpen(false);
-    resetForm();
+  function handleEdit(item: Facility) {
+    setEditingId(item.id);
+    setName(item.name);
+    setDescription(item.description ?? "");
+    setPhoto(null);
+    setPreview(item.photoUrl ?? "");
+    setError("");
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -113,8 +99,6 @@ function Facilities() {
       }
 
       await loadFacilities();
-
-      setIsFormOpen(false);
       resetForm();
     } catch (err) {
       setError(
@@ -132,18 +116,16 @@ function Facilities() {
       "Apakah kamu yakin ingin menghapus fasilitas ini?",
     );
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     try {
       setError("");
-
       await deleteFacility(id);
+      setData((current) => current.filter((item) => item.id !== id));
 
-      setData((current) =>
-        current.filter((item) => item.id !== id),
-      );
+      if (editingId === id) {
+        resetForm();
+      }
     } catch (err) {
       setError(
         err instanceof Error
@@ -154,223 +136,229 @@ function Facilities() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <section className="min-h-[calc(100vh-48px)] bg-white px-2 py-3 sm:px-3 sm:py-4">
       {/* Header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            Fasilitas
-          </h1>
-
-          <p className="mt-1 text-sm text-gray-500">
-            Kelola informasi fasilitas sekolah.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={openAddForm}
-          className="w-full rounded-lg bg-amber-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-600 sm:w-auto"
-        >
-          + Tambah Fasilitas
-        </button>
+      <div className="mb-8">
+        <h1 className="text-xl font-bold text-black">
+          Sarana & Prasarana
+        </h1>
+        <p className="mt-1 text-sm text-gray-500">
+          Kelola data sarana & prasarana sekolah
+        </p>
       </div>
 
-      {/* Error */}
       {error && (
-        <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           {error}
         </div>
       )}
 
-      {/* Content */}
-      {loading ? (
-        <div className="rounded-xl bg-white p-8 text-center shadow-sm">
-          <p className="text-sm text-gray-500">
-            Memuat data fasilitas...
-          </p>
-        </div>
-      ) : data.length === 0 ? (
-        <div className="rounded-xl bg-white p-8 text-center shadow-sm">
-          <p className="text-sm text-gray-500">
-            Belum ada data fasilitas.
-          </p>
+      {/* Layout utama */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(260px,1fr)] lg:gap-5">
+        {/* Bagian kiri: pencarian dan tabel */}
+        <div className="min-w-0">
+          <div className="relative mb-7 w-full max-w-[250px]">
+            <Search
+              size={18}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-black"
+            />
+            <input
+              type="text"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Cari nama fasilitas..."
+              className="h-7 w-full rounded border border-gray-400 bg-white pl-9 pr-2 text-xs outline-none focus:border-amber-600"
+            />
+          </div>
 
-          <button
-            type="button"
-            onClick={openAddForm}
-            className="mt-4 rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-amber-600"
-          >
-            Tambah Fasilitas
-          </button>
+          <div className="w-full overflow-x-auto">
+            <table className="w-full min-w-[420px] border-collapse text-left text-[11px] text-black">
+              <thead>
+                <tr className="h-[60px] bg-[#F3E9DC]">
+                  <th className="w-[7%] border border-gray-400 px-3">
+                    No
+                  </th>
+                  <th className="w-[30%] border border-gray-400 px-3">
+                    Nama
+                  </th>
+                  <th className="w-[35%] border border-gray-400 px-3">
+                    Foto
+                  </th>
+                  <th className="w-[28%] border border-gray-400 px-3 text-center">
+                    Aksi
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="border border-gray-400 px-3 py-8 text-center"
+                    >
+                      Memuat data...
+                    </td>
+                  </tr>
+                ) : filteredData.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="border border-gray-400 px-3 py-8 text-center text-gray-500"
+                    >
+                      Data fasilitas tidak ditemukan.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredData.map((item, index) => (
+                    <tr key={item.id} className="h-[61px]">
+                      <td className="border border-gray-400 px-3">
+                        {index + 1}
+                      </td>
+                      <td className="border border-gray-400 px-3">
+                        {item.name}
+                      </td>
+                      <td className="border border-gray-400 px-3">
+                        {item.photoUrl ? (
+                          <a
+                            href={item.photoUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-700 underline"
+                          >
+                            Lihat foto
+                          </a>
+                        ) : (
+                          "img.jpg"
+                        )}
+                      </td>
+                      <td className="border border-gray-400 px-3">
+                        <div className="flex items-center justify-center gap-2 sm:gap-3">
+                          <button
+                            type="button"
+                            onClick={() => handleEdit(item)}
+                            title="Edit fasilitas"
+                            className="text-orange-500 transition hover:text-orange-700"
+                          >
+                            <Pencil size={22} fill="currentColor" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(item.id)}
+                            title="Hapus fasilitas"
+                            className="text-orange-500 transition hover:text-orange-700"
+                          >
+                            <Trash2 size={22} fill="currentColor" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      ) : (
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {data.map((item) => (
-            <article
-              key={item.id}
-              className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-100"
-            >
-              {/* Image */}
-              <div className="h-48 bg-gray-100">
-                {item.photoUrl ? (
+
+        {/* Bagian kanan: form */}
+        <div className="min-w-0">
+          <h2 className="mb-5 text-sm font-bold text-black">
+            {editingId === null
+              ? "Tambah Fasilitas"
+              : "Edit Fasilitas"}
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div>
+              <label className="mb-1 block text-[11px] font-semibold text-black">
+                Nama<span className="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                className="h-6 w-full rounded border border-gray-400 px-2 text-xs outline-none focus:border-amber-600"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-[11px] font-semibold text-black">
+                Deskripsi
+              </label>
+              <textarea
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                rows={3}
+                className="w-full resize-none rounded border border-gray-400 px-2 py-2 text-xs outline-none focus:border-amber-600"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-[11px] font-semibold text-black">
+                Foto
+              </label>
+
+              <label className="flex h-[72px] w-full max-w-[165px] cursor-pointer items-center justify-center gap-3 rounded border border-gray-400 bg-white px-2 hover:bg-gray-50">
+                <span className="flex h-10 w-12 items-center justify-center rounded bg-gray-200">
+                  <ImagePlus size={22} className="text-gray-500" />
+                </span>
+                <span className="text-[9px] leading-4 text-black">
+                  Format, JPG, PNG
+                  <br />
+                  <span className="rounded border border-gray-400 px-1">
+                    Pilih File
+                  </span>
+                </span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  onChange={handlePhotoChange}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-[11px] font-semibold text-black">
+                Preview Foto
+              </label>
+
+              <div className="flex h-[73px] w-full max-w-[163px] items-center justify-center overflow-hidden rounded-lg bg-[#D9D9D9]">
+                {preview ? (
                   <img
-                    src={item.photoUrl}
-                    alt={item.name}
+                    src={preview}
+                    alt="Preview fasilitas"
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-sm text-gray-400">
-                    Foto belum tersedia
-                  </div>
+                  <ImagePlus size={34} className="text-white" />
                 )}
               </div>
-
-              {/* Content */}
-              <div className="p-5">
-                <h2 className="text-lg font-bold text-gray-900">
-                  {item.name}
-                </h2>
-
-                <p className="mt-2 line-clamp-3 text-sm leading-6 text-gray-600">
-                  {item.description ||
-                    "Tidak ada deskripsi."}
-                </p>
-
-                <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-                  <button
-                    type="button"
-                    onClick={() => openEditForm(item)}
-                    className="flex-1 rounded-lg border border-amber-500 px-4 py-2.5 text-sm font-semibold text-amber-600 transition hover:bg-amber-50"
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(item.id)}
-                    className="flex-1 rounded-lg border border-red-500 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50"
-                  >
-                    Hapus
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
-
-      {/* Modal */}
-      {isFormOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 sm:p-6">
-          <div className="my-4 w-full max-w-2xl rounded-2xl bg-white shadow-xl sm:my-8">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b px-5 py-4 sm:px-6">
-              <h2 className="text-lg font-bold text-gray-900">
-                {editingId === null
-                  ? "Tambah Fasilitas"
-                  : "Edit Fasilitas"}
-              </h2>
-
-              <button
-                type="button"
-                onClick={closeForm}
-                className="rounded-lg px-3 py-1 text-xl text-gray-500 hover:bg-gray-100"
-              >
-                ×
-              </button>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-5 p-5 sm:p-6">
-                {/* Name */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Nama Fasilitas
-                  </label>
+            <div className="flex justify-end gap-2 pt-4">
+              <button
+                type="button"
+                onClick={resetForm}
+                disabled={saving}
+                className="rounded border border-gray-500 bg-white px-5 py-2 text-xs font-medium text-black hover:bg-gray-100 disabled:opacity-50"
+              >
+                Batal
+              </button>
 
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(event) =>
-                      setName(event.target.value)
-                    }
-                    placeholder="Contoh: Laboratorium Komputer"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
-                  />
-                </div>
-
-                {/* Description */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Deskripsi
-                  </label>
-
-                  <textarea
-                    value={description}
-                    onChange={(event) =>
-                      setDescription(event.target.value)
-                    }
-                    placeholder="Masukkan deskripsi fasilitas"
-                    rows={5}
-                    className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-100"
-                  />
-                </div>
-
-                {/* Photo */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-gray-700">
-                    Foto Fasilitas
-                  </label>
-
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handlePhotoChange}
-                    className="block w-full cursor-pointer rounded-lg border border-gray-300 text-sm text-gray-600 file:mr-4 file:border-0 file:bg-amber-50 file:px-4 file:py-3 file:text-sm file:font-semibold file:text-amber-700 hover:file:bg-amber-100"
-                  />
-
-                  {preview && (
-                    <div className="mt-4 overflow-hidden rounded-xl border">
-                      <img
-                        src={preview}
-                        alt="Preview fasilitas"
-                        className="max-h-64 w-full object-cover"
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex flex-col-reverse gap-3 border-t bg-gray-50 p-5 sm:flex-row sm:justify-end sm:px-6">
-                <button
-                  type="button"
-                  onClick={closeForm}
-                  disabled={saving}
-                  className="rounded-lg border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-100 disabled:opacity-50"
-                >
-                  Batal
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="rounded-lg bg-amber-500 px-5 py-3 text-sm font-semibold text-white hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {saving
-                    ? "Menyimpan..."
-                    : editingId === null
-                      ? "Simpan"
-                      : "Simpan Perubahan"}
-                </button>
-              </div>
-            </form>
-          </div>
+              <button
+                type="submit"
+                disabled={saving}
+                className="rounded bg-[#F5820B] px-6 py-2 text-xs font-semibold text-white hover:bg-orange-600 disabled:opacity-50"
+              >
+                {saving ? "Menyimpan..." : "Simpan"}
+              </button>
+            </div>
+          </form>
         </div>
-      )}
-    </main>
+      </div>
+    </section>
   );
 }
 
