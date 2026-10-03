@@ -16,6 +16,7 @@ function Facilities() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [search, setSearch] = useState("");
 
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -72,10 +73,12 @@ function Facilities() {
     setPhoto(null);
     setPreview(item.photoUrl ?? "");
     setError("");
+    setSuccess("");
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setSuccess("");
 
     if (!name.trim()) {
       setError("Nama fasilitas wajib diisi.");
@@ -100,6 +103,7 @@ function Facilities() {
 
       await loadFacilities();
       resetForm();
+      setSuccess("Informasi fasilitas berhasil disimpan.");
     } catch (err) {
       setError(
         err instanceof Error
@@ -120,6 +124,8 @@ function Facilities() {
 
     try {
       setError("");
+      setSuccess("");
+
       await deleteFacility(id);
       setData((current) => current.filter((item) => item.id !== id));
 
@@ -146,6 +152,12 @@ function Facilities() {
           Kelola data sarana & prasarana sekolah
         </p>
       </div>
+
+      {success && (
+        <div className="mb-4 rounded border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+          {success}
+        </div>
+      )}
 
       {error && (
         <div className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">

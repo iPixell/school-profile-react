@@ -41,3 +41,13 @@ export async function createContact(data: ContactFormData) {
     body: JSON.stringify(data),
   });
 }
+
+export async function updateContact(
+  id: number,
+  data: ContactFormData
+) {
+  return apiFetch<ContactSingleResponse>(`/contacts/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}

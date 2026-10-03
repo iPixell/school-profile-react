@@ -15,6 +15,7 @@ function SPMB() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -76,10 +77,12 @@ function SPMB() {
 
     setPhoto(null);
     setError("");
+    setSuccess("");
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setSuccess("");
 
     if (!title.trim()) {
       setError("Judul SPMB wajib diisi.");
@@ -104,6 +107,7 @@ function SPMB() {
       }
 
       await loadSpmb();
+      setSuccess("Informasi SPMB berhasil disimpan.");
     } catch (err) {
       setError(
         err instanceof Error
@@ -134,6 +138,12 @@ function SPMB() {
           Kelola Informasi penerimaan peserta didik baru
         </p>
       </div>
+
+      {success && (
+        <div className="mb-4 rounded border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+          {success}
+        </div>
+      )}
 
       {error && (
         <div className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
