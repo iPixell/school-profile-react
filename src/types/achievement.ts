@@ -6,4 +6,6 @@ export interface Achievement {
   level: string;
   year: number;
   photoUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
 }

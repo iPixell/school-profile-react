@@ -3,9 +3,14 @@ import {
  getSchoolProfile,
  type SchoolProfile,
 } from "../services/schoolProfile.service";
+import {
+ getAchievements,
+ type Achievement,
+} from "../services/achievement.service";
 
 function Home() {
  const [profile, setProfile] = useState<SchoolProfile | null>(null);
+ const [achievements, setAchievements] = useState<Achievement[]>([]);
 
  useEffect(() => {
   async function loadProfile() {
@@ -18,6 +23,19 @@ function Home() {
   }
 
   loadProfile();
+ }, []);
+
+ useEffect(() => {
+  async function loadAchievements() {
+   try {
+    const response = await getAchievements();
+    setAchievements(response);
+   } catch (error) {
+    console.error("Gagal mengambil data prestasi:", error);
+   }
+  }
+
+  loadAchievements();
  }, []);
  return (
   <main>
@@ -113,29 +131,40 @@ function Home() {
     </div>
 
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-     {[1, 2, 3].map((item) => (
-      <article
-       key={item}
-       className="overflow-hidden rounded-xl bg-white shadow-md"
-      >
-       <div className="flex h-48 items-center justify-center bg-gray-300">
-        <span className="text-sm text-gray-600">Gambar belum tersedia</span>
-       </div>
-
-       <div className="p-5">
-        <h3 className="mb-3 text-base font-bold">
-         Data prestasi belum tersedia
-        </h3>
-
-        <div className="space-y-1 text-sm text-gray-500">
-         <p>Nama siswa belum tersedia</p>
-         <p>Peringkat belum tersedia</p>
-         <p>Tingkat belum tersedia</p>
-         <p>Tahun belum tersedia</p>
+     {[...achievements]
+      .sort((a, b) => b.year - a.year)
+      .slice(0, 3)
+      .map((item) => (
+       <article
+        key={item.id}
+        className="overflow-hidden rounded-xl bg-white shadow-md"
+       >
+        <div className="flex h-48 items-center justify-center bg-gray-300">
+         {item.photoUrl ? (
+          <img
+           src={item.photoUrl}
+           alt={item.competition}
+           className="h-full w-full object-cover"
+          />
+         ) : (
+          <span className="text-sm text-gray-600">Gambar belum tersedia</span>
+         )}
         </div>
-       </div>
-      </article>
-     ))}
+
+        <div className="p-5">
+         <h3 className="mb-3 text-base font-bold text-gray-800">
+          {item.competition}
+         </h3>
+
+         <div className="space-y-1 text-sm text-gray-500">
+          <p>Nama siswa: {item.studentName}</p>
+          <p>Peringkat: {item.rank}</p>
+          <p>Tingkat: {item.level}</p>
+          <p>Tahun: {item.year}</p>
+         </div>
+        </div>
+       </article>
+      ))}
     </div>
 
     <div className="mt-6 text-right">

@@ -32,11 +32,25 @@ export function createStaff(data: {
   position: string;
   type: StaffType;
   classTaught?: string;
-  photoUrl?: string;
+  photo?: File;
 }) {
+  const formData = new FormData();
+
+  formData.append("name", data.name);
+  formData.append("position", data.position);
+  formData.append("type", data.type);
+
+  if (data.classTaught) {
+    formData.append("classTaught", data.classTaught);
+  }
+
+  if (data.photo) {
+    formData.append("photo", data.photo);
+  }
+
   return apiFetch<StaffResponse>("/staff", {
     method: "POST",
-    body: JSON.stringify(data),
+    body: formData,
   });
 }
 
@@ -47,12 +61,26 @@ export function updateStaff(
     position: string;
     type: StaffType;
     classTaught?: string;
-    photoUrl?: string;
+    photo?: File;
   },
 ) {
+  const formData = new FormData();
+
+  formData.append("name", data.name);
+  formData.append("position", data.position);
+  formData.append("type", data.type);
+
+  if (data.classTaught) {
+    formData.append("classTaught", data.classTaught);
+  }
+
+  if (data.photo) {
+    formData.append("photo", data.photo);
+  }
+
   return apiFetch<StaffResponse>(`/staff/${id}`, {
     method: "PUT",
-    body: JSON.stringify(data),
+    body: formData,
   });
 }
 
