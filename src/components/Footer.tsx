@@ -1,167 +1,181 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import { MapPin, Phone, Mail } from "lucide-react";
+import { FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
+import { getContacts, type Contact } from "../services/contact.service";
 import {
-    FaInstagram,
-    FaFacebook,
-    FaYoutube,
-    FaWhatsapp,
-} from "react-icons/fa";
+ getSchoolProfile,
+ type SchoolProfile,
+} from "../services/schoolProfile.service";
 
-import { getContacts } from "../services/contact.service";
-import type { Contact } from "../services/contact.service";
-import { getSchoolProfile } from "../services/schoolProfile.service";
-import type { SchoolProfile } from "../services/schoolProfile.service";
-import { getSocialMedias } from "../services/socialMedia.service";
-import type { SocialMedia } from "../services/socialMedia.service";
+import {
+ getSocialMedias,
+ type SocialMedia,
+} from "../services/socialMedia.service";
 
-export default function Footer() {
-    const [contact, setContact] = useState<Contact | null>(null);
-    const [profile, setProfile] = useState<SchoolProfile | null>(null);
-    const [socialMedia, setSocialMedia] = useState<SocialMedia[]>([]);
+function Footer() {
+ const [contact, setContact] = useState<Contact | null>(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [contactRes, profileRes, socialRes] = await Promise.all([
-                    getContacts(),
-                    getSchoolProfile(),
-                    getSocialMedias(),
-                ]);
+ const [schoolProfile, setSchoolProfile] = useState<SchoolProfile | null>(null);
 
-                setContact(contactRes.data?.[0] ?? null);
-                setProfile(profileRes.data ?? null);
-                setSocialMedia(socialRes.data ?? []);
-            } catch (error) {
-                console.error("Gagal mengambil data footer:", error);
-            }
-        };
+ const [socialMedias, setSocialMedias] = useState<SocialMedia[]>([]);
 
-        fetchData();
-    }, []);
+ useEffect(() => {
+  let mounted = true;
 
-    const whatsappNumber = contact?.whatsapp?.replace(/\D/g, "");
+  async function loadData() {
+   try {
+    const contactResponse = await getContacts();
 
-    return (
-        <footer className="bg-amber-700 text-white">
-            <div className="mx-auto grid max-w-7xl gap-10 px-6 py-12 md:grid-cols-3">
-                {/* Profil Sekolah */}
-                <div>
-                    <div className="mb-4 flex items-center gap-3">
-                        {profile?.logoUrl && (
-                            <img
-                                src={profile.logoUrl}
-                                alt="Logo sekolah"
-                                className="h-14 w-14 rounded-full bg-white object-contain p-1"
-                            />
-                        )}
+    if (mounted) {
+     setContact(contactResponse.data[0] ?? null);
+    }
+   } catch (error) {
+    console.error("Gagal mengambil data kontak:", error);
+   }
 
-                        <h2 className="text-xl font-bold">
-                            {profile?.schoolName || "Nama Sekolah"}
-                        </h2>
-                    </div>
+   try {
+    const schoolProfileResponse = await getSchoolProfile();
 
-                    <p className="text-sm leading-relaxed text-gray-200">
-                        {profile?.shortInfo || "Selamat datang di website sekolah kami."}
-                    </p>
-                </div>
+    if (mounted) {
+     setSchoolProfile(schoolProfileResponse.data);
+    }
+   } catch (error) {
+    console.error("Gagal mengambil profil sekolah:", error);
+   }
 
-                {/* Kontak */}
-                <div>
-                    <h3 className="mb-4 text-lg font-semibold">Hubungi Kami</h3>
+   try {
+    const socialMediaResponse = await getSocialMedias();
 
-                    <div className="space-y-3 text-sm text-gray-200">
-                        {contact?.address && (
-                            <div className="flex items-start gap-3">
-                                <MapPin className="mt-1 h-5 w-5 shrink-0" />
-                                <span>{contact.address}</span>
-                            </div>
-                        )}
+    if (mounted) {
+     setSocialMedias(socialMediaResponse.data);
+    }
+   } catch (error) {
+    console.error("Gagal mengambil data sosial media:", error);
 
-                        {contact?.phone && (
-                            <a
-                                href={`tel:${contact.phone}`}
-                                className="flex items-center gap-3 transition hover:text-green-300"
-                            >
-                                <Phone className="h-5 w-5 shrink-0" />
-                                <span>{contact.phone}</span>
-                            </a>
-                        )}
+    if (mounted) {
+     setSocialMedias([]);
+    }
+   }
+  }
 
-                        {contact?.email && (
-                            <a
-                                href={`mailto:${contact.email}`}
-                                className="flex items-center gap-3 transition hover:text-green-300"
-                            >
-                                <Mail className="h-5 w-5 shrink-0" />
-                                <span>{contact.email}</span>
-                            </a>
-                        )}
+  loadData();
 
-                        {whatsappNumber && (
-                            <a
-                                href={`https://wa.me/${whatsappNumber}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-3 transition hover:text-green-300"
-                            >
-                                <FaWhatsapp className="h-5 w-5 shrink-0" />
-                                <span>WhatsApp</span>
-                            </a>
-                        )}
+  return () => {
+   mounted = false;
+  };
+ }, []);
 
-                        {contact?.googleMaps && (
-                            <a
-                                href={contact.googleMaps}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-3 transition hover:text-green-300"
-                            >
-                                <MapPin className="h-5 w-5 shrink-0" />
-                                <span>Lihat Lokasi</span>
-                            </a>
-                        )}
-                    </div>
-                </div>
+ const instagramUrl = socialMedias.find(
+  (item) => item.platform.toLowerCase() === "instagram",
+ )?.url;
 
-                {/* Media Sosial */}
-                <div>
-                    <h3 className="mb-4 text-lg font-semibold">Media Sosial</h3>
+ const facebookUrl = socialMedias.find(
+  (item) => item.platform.toLowerCase() === "facebook",
+ )?.url;
 
-                    <div className="flex flex-wrap gap-4">
-                        {socialMedia.map((item) => {
-                            const platform = item.platform.toLowerCase();
+ const youtubeUrl = socialMedias.find(
+  (item) => item.platform.toLowerCase() === "youtube",
+ )?.url;
 
-                            const Icon =
-                                platform.includes("instagram")
-                                    ? FaInstagram
-                                    : platform.includes("facebook")
-                                        ? FaFacebook
-                                        : platform.includes("youtube")
-                                            ? FaYoutube
-                                            : null;
+ return (
+  <footer className="bg-amber-700 text-white">
+   <div className="mx-auto grid max-w-7xl gap-10 px-6 py-12 md:grid-cols-3">
+    {/* Logo & Nama Sekolah */}
+    <div className="flex items-center gap-4">
+     {schoolProfile?.logoUrl ? (
+      <img
+       src={schoolProfile.logoUrl}
+       alt={`Logo ${schoolProfile.schoolName}`}
+       className="h-14 w-14 shrink-0 rounded-full object-cover"
+      />
+     ) : (
+      <div className="h-14 w-14 shrink-0 rounded-full bg-gray-200" />
+     )}
 
-                            return (
-                                <a
-                                    key={item.id}
-                                    href={item.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    aria-label={item.platform}
-                                    title={item.platform}
-                                    className="text-2xl transition hover:text-green-300"
-                                >
-                                    {Icon ? <Icon /> : item.platform}
-                                </a>
-                            );
-                        })}
-                    </div>
-                </div>
-            </div>
+     <span className="text-lg font-bold leading-tight">
+      {schoolProfile?.schoolName || "SD NEGERI BAROS 3"}
+     </span>
+    </div>
 
-            <div className="border-t border-white/20 px-6 py-4 text-center text-sm text-gray-300">
-                © {new Date().getFullYear()} {profile?.schoolName || "Sekolah Kami"}
+    {/* Kontak */}
+    <div>
+     <h3 className="mb-5 text-base font-bold">Kontak Kami</h3>
 
-            </div>
-        </footer>
-    );
+     {contact ? (
+      <div className="space-y-3 text-sm">
+       {contact.address && (
+        <div className="flex items-start gap-3">
+         <MapPin size={18} className="mt-0.5 shrink-0" />
+
+         <span>{contact.address}</span>
+        </div>
+       )}
+
+       {contact.phone && (
+        <div className="flex items-center gap-3">
+         <Phone size={18} className="shrink-0" />
+
+         <span>{contact.phone}</span>
+        </div>
+       )}
+
+       {contact.email && (
+        <div className="flex items-center gap-3">
+         <Mail size={18} className="shrink-0" />
+
+         <span>{contact.email}</span>
+        </div>
+       )}
+      </div>
+     ) : (
+      <p className="text-sm">Data kontak belum tersedia.</p>
+     )}
+    </div>
+
+    {/* Social Media */}
+    <div>
+     <h3 className="mb-5 text-base font-bold">Ikuti Kami</h3>
+
+     <div className="flex items-center gap-4">
+      <a
+       href={instagramUrl || "#"}
+       target="_blank"
+       rel="noopener noreferrer"
+       aria-label="Instagram"
+       className="transition-opacity hover:opacity-70"
+      >
+       <FaInstagram size={24} />
+      </a>
+
+      <a
+       href={facebookUrl || "#"}
+       target="_blank"
+       rel="noopener noreferrer"
+       aria-label="Facebook"
+       className="transition-opacity hover:opacity-70"
+      >
+       <FaFacebook size={24} />
+      </a>
+
+      <a
+       href={youtubeUrl || "#"}
+       target="_blank"
+       rel="noopener noreferrer"
+       aria-label="YouTube"
+       className="transition-opacity hover:opacity-70"
+      >
+       <FaYoutube size={24} />
+      </a>
+     </div>
+    </div>
+   </div>
+
+   {/* Copyright */}
+   <div className="border-t border-white/20 py-3 text-center text-xs">
+    © 2026 {schoolProfile?.schoolName || "SD Negeri Baros 3"}
+   </div>
+  </footer>
+ );
 }
+
+export default Footer;
