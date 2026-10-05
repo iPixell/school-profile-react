@@ -171,7 +171,7 @@ function PrincipalHistory() {
 
  const filteredHistories = histories.filter((item) =>
   `${item.name} ${item.period}`.toLowerCase().includes(search.toLowerCase()),
- );
+);
 
  return (
   <main className="min-h-screen bg-gray-100 p-1 sm:p-2">
@@ -361,9 +361,12 @@ function PrincipalHistory() {
         <input
          id="principal-period"
          type="text"
+         inputMode="numeric"
          value={period}
          onChange={(e) => {
-          setPeriod(e.target.value);
+          const value = e.target.value.replace(/[^\d\s\-–—/]/g, "");
+
+          setPeriod(value);
           setPeriodError("");
           setError("");
           setSuccess("");

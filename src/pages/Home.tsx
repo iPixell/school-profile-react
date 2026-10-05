@@ -110,7 +110,10 @@ function Home() {
       {profile?.mission ? (
        <ul className="space-y-2 text-sm leading-6 text-gray-700 sm:text-base">
         {profile.mission.split("\n").map((item, index) => (
-         <li key={index}>• {item}</li>
+         <li key={index} className="flex gap-2">
+          <span className="text-amber-500">•</span>
+          <span>{item}</span>
+         </li>
         ))}
        </ul>
       ) : (
@@ -130,42 +133,54 @@ function Home() {
      </h2>
     </div>
 
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-     {[...achievements]
-      .sort((a, b) => b.year - a.year)
-      .slice(0, 3)
-      .map((item) => (
-       <article
-        key={item.id}
-        className="overflow-hidden rounded-xl bg-white shadow-md"
-       >
-        <div className="flex h-48 items-center justify-center bg-gray-300">
-         {item.photoUrl ? (
-          <img
-           src={item.photoUrl}
-           alt={item.competition}
-           className="h-full w-full object-cover"
-          />
-         ) : (
-          <span className="text-sm text-gray-600">Gambar belum tersedia</span>
-         )}
-        </div>
-
-        <div className="p-5">
-         <h3 className="mb-3 text-base font-bold text-gray-800">
-          {item.competition}
-         </h3>
-
-         <div className="space-y-1 text-sm text-gray-500">
-          <p>Nama siswa: {item.studentName}</p>
-          <p>Peringkat: {item.rank}</p>
-          <p>Tingkat: {item.level}</p>
-          <p>Tahun: {item.year}</p>
+    {achievements.length > 0 ? (
+     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {[...achievements]
+       .sort((a, b) => b.year - a.year)
+       .slice(0, 3)
+       .map((item, index, array) => (
+        <article
+         key={item.id}
+         className={`overflow-hidden rounded-xl bg-white shadow-md ${
+          array.length === 3 && index === 2
+           ? "sm:col-span-2 sm:mx-auto sm:w-1/2 lg:col-span-1 lg:w-full"
+           : ""
+         }`}
+        >
+         <div className="flex h-48 items-center justify-center bg-gray-300">
+          {item.photoUrl ? (
+           <img
+            src={item.photoUrl}
+            alt={item.competition}
+            className="h-full w-full object-cover"
+           />
+          ) : (
+           <span className="text-sm text-gray-600">Gambar belum tersedia</span>
+          )}
          </div>
-        </div>
-       </article>
-      ))}
-    </div>
+
+         <div className="p-5">
+          <h3 className="mb-3 text-base font-bold text-gray-800">
+           {item.competition}
+          </h3>
+
+          <div className="space-y-1 text-sm text-gray-500">
+           <p>Nama siswa: {item.studentName}</p>
+           <p>Peringkat: {item.rank}</p>
+           <p>Tingkat: {item.level}</p>
+           <p>Tahun: {item.year}</p>
+          </div>
+         </div>
+        </article>
+       ))}
+     </div>
+    ) : (
+     <div className="flex min-h-40 items-center justify-center rounded-xl bg-gray-50">
+      <p className="text-sm text-gray-500">
+       Belum ada data prestasi yang tersedia.
+      </p>
+     </div>
+    )}
 
     <div className="mt-6 text-right">
      <a

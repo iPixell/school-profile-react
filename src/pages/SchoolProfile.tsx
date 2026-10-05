@@ -186,22 +186,35 @@ function SchoolProfile() {
     {principalHistories.length > 0 ? (
      <div className="mx-auto max-w-3xl">
       <ul className="space-y-3">
-       {principalHistories.map((item) => (
-        <li
-         key={item.id}
-         className="flex items-start gap-3 text-sm leading-6 text-gray-700 sm:text-base"
-        >
-         <span className="mt-0.5 font-bold text-amber-600">•</span>
+       {[...principalHistories]
+        .sort((a, b) => {
+         const yearA = Number(a.period.match(/\d{4}/)?.[0] || 0);
+         const yearB = Number(b.period.match(/\d{4}/)?.[0] || 0);
 
-         <span>
-          <span className="font-medium">{item.period}</span>
+         return yearA - yearB;
+        })
+        .map((item) => (
+         <li
+          key={item.id}
+          className="flex items-start gap-3 text-sm leading-6 text-gray-700 sm:text-base"
+         >
+          <span className="mt-0.5 font-bold text-black">•</span>
 
-          {" — "}
+          <span>
+           <span className="font-medium">
+            {String(item.period)
+             .trim()
+             .endsWith(String(new Date().getFullYear()))
+             ? `${String(item.period).trim().slice(0, -4)}sekarang`
+             : item.period}
+           </span>
 
-          <span className="font-semibold text-gray-800">{item.name}</span>
-         </span>
-        </li>
-       ))}
+           {" — "}
+
+           <span className="font-semibold text-gray-800">{item.name}</span>
+          </span>
+         </li>
+        ))}
       </ul>
      </div>
     ) : (
