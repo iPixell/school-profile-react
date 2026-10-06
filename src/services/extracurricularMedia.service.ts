@@ -1,44 +1,56 @@
 import { apiFetch } from "./api";
 
 export interface ExtracurricularMedia {
-    id: number;
-    extracurricularId: number;
-    type: "IMAGE" | "VIDEO";
-    url: string;
-    createdAt: string;
-    updatedAt: string;
+  id: number;
+  extracurricularId: number;
+  type: "IMAGE" | "VIDEO";
+  url: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface MediaListResponse {
-    message: string;
-    data: ExtracurricularMedia[];
+  message: string;
+  data: ExtracurricularMedia[];
 }
 
 interface MediaResponse {
-    message: string;
-    data: ExtracurricularMedia;
+  message: string;
+  data: ExtracurricularMedia;
 }
 
 export async function getExtracurricularMedia(
-    extracurricularId: number,
+  extracurricularId: number,
 ) {
-    return apiFetch<MediaListResponse>(
-        `/extracurriculars/${extracurricularId}/media`,
-    );
+  return apiFetch<MediaListResponse>(
+    `/extracurriculars/${extracurricularId}/media`,
+  );
 }
 
 export async function uploadExtracurricularMedia(
-    extracurricularId: number,
-    file: File,
+  extracurricularId: number,
+  file: File,
 ) {
-    const formData = new FormData();
-    formData.append("file", file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-    return apiFetch<MediaResponse>(
-        `/extracurriculars/${extracurricularId}/media`,
-        {
-            method: "POST",
-            body: formData,
-        },
-    );
+  return apiFetch<MediaResponse>(
+    `/extracurriculars/${extracurricularId}/media`,
+    {
+      method: "POST",
+      body: formData,
+    },
+  );
+}
+
+export async function deleteExtracurricularMedia(
+  extracurricularId: number,
+  mediaId: number,
+) {
+  return apiFetch<{ message: string }>(
+    `/extracurriculars/${extracurricularId}/media/${mediaId}`,
+    {
+      method: "DELETE",
+    },
+  );
 }

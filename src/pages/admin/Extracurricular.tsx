@@ -326,7 +326,7 @@ export default function Extracurricular() {
               type="button"
               title="Kelola dokumentasi"
               onClick={() =>
-               navigate(`/admin/extracurriculars/${item.id}/media`)
+               navigate(`/admin/ekstrakurikuler/${item.id}/media`)
               }
               className="rounded p-1.5 text-gray-600 hover:bg-gray-100"
              >

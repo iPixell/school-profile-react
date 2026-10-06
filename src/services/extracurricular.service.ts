@@ -1,5 +1,9 @@
-
 import { apiFetch } from "./api";
+
+interface ExtracurricularSingleResponse {
+  message: string;
+  data: Extracurricular;
+}
 
 export type Extracurricular = {
   id: number;
@@ -21,6 +25,12 @@ type ItemResponse = {
 
 export function getExtracurriculars() {
   return apiFetch<ListResponse>("/extracurriculars");
+}
+
+export function getExtracurricular(id: number) {
+  return apiFetch<ExtracurricularSingleResponse>(
+    `/extracurriculars/${id}`,
+  );
 }
 
 export function createExtracurricular(
