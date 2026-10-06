@@ -107,9 +107,12 @@ export async function apiFetch<T>(
     if (accessToken) {
       const retryHeaders = new Headers(options?.headers);
 
-      if (!(options?.body instanceof FormData)) {
-        retryHeaders.set("Content-Type", "application/json");
-      }
+      if (
+  options?.body &&
+  !(options.body instanceof FormData)
+) {
+  headers.set("Content-Type", "application/json");
+}
 
       retryHeaders.set("Authorization", `Bearer ${accessToken}`);
 

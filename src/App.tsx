@@ -16,6 +16,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetLinkSent from "./pages/ResetLinkSent";
 import ResetPassword from "./pages/ResetPassword";
 import ResetPasswordSuccess from "./pages/ResetPasswordSuccess";
+import Dashboard from "./pages/admin/Dashboard";
 import AdminSchoolProfile from "./pages/admin/SchoolProfile";
 import PrincipalHistory from "./pages/admin/PrincipalHistory";
 import AdminSPMB from "./pages/admin/SPMB";
@@ -25,6 +26,7 @@ import Staff from "./pages/admin/Staff";
 import Achievement from "./pages/admin/Achievement";
 import Eskul from "./pages/admin/Extracurricular";
 import ExtracurricularMedia from "./pages/admin/ExtracurricularMedia";
+import SocialMedia from "./pages/admin/SocialMedia";
 
 function App() {
  return (
@@ -83,8 +85,7 @@ function App() {
       </AdminRoute>
      }
     >
-     {/* Profil Sekolah */}
-     <Route index element={<AdminSchoolProfile />} />
+     <Route index element={<Dashboard />} />
 
      <Route path="profil-sekolah" element={<AdminSchoolProfile />} />
 
@@ -113,6 +114,7 @@ function App() {
 
      {/* Kontak */}
      <Route path="contact" element={<AdminContact />} />
+     <Route path="sosial-media" element={<SocialMedia />} />
     </Route>
    </Routes>
   </BrowserRouter>
