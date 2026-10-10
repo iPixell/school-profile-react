@@ -1,137 +1,180 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+
 import {
- getExtracurriculars,
- type Extracurricular,
+  getExtracurriculars,
+  type Extracurricular,
 } from "../services/extracurricular.service";
 
 import {
- getExtracurricularMedia,
- type ExtracurricularMedia,
+  getExtracurricularMedia,
+  type ExtracurricularMedia,
 } from "../services/extracurricularMedia.service";
 
 function ExtracurricularDetail() {
- const { id } = useParams();
+  const { id } = useParams();
 
- const [extracurricular, setExtracurricular] = useState<Extracurricular | null>(
-  null,
- );
- const [media, setMedia] = useState<ExtracurricularMedia[]>([]);
- const [loading, setLoading] = useState(true);
- const [error, setError] = useState("");
+  const [extracurricular, setExtracurricular] =
+    useState<Extracurricular | null>(null);
+  const [media, setMedia] = useState<ExtracurricularMedia[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
- useEffect(() => {
-  async function loadData() {
-   try {
-    const extracurricularId = Number(id);
+  useEffect(() => {
+    let active = true;
 
-    if (!Number.isInteger(extracurricularId)) {
-     throw new Error("ID ekstrakurikuler tidak valid.");
+    async function loadData() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const extracurricularId = Number(id);
+
+        if (
+          !id ||
+          !Number.isInteger(extracurricularId) ||
+          extracurricularId <= 0
+        ) {
+          throw new Error("ID ekstrakurikuler tidak valid.");
+        }
+
+        const response = await getExtracurriculars();
+
+        const found = response.data.find(
+          (item) => item.id === extracurricularId,
+        );
+
+        if (!found) {
+          throw new Error("Ekstrakurikuler tidak ditemukan.");
+        }
+
+        if (active) {
+          setExtracurricular(found);
+        }
+
+        try {
+          const mediaResponse =
+            await getExtracurricularMedia(extracurricularId);
+
+          if (active) {
+            setMedia(mediaResponse.data);
+          }
+        } catch {
+          if (active) {
+            setMedia([]);
+            setError("Dokumentasi gagal dimuat. Silakan coba lagi.");
+          }
+        }
+      } catch (err) {
+        if (active) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Data ekstrakurikuler gagal dimuat.",
+          );
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
     }
 
-    const extracurricularResponse = await getExtracurriculars();
+    void loadData();
 
-    const foundExtracurricular = extracurricularResponse.data.find(
-     (item) => item.id === extracurricularId,
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#f5f5f5] p-6 text-sm text-gray-500">
+        Memuat dokumentasi...
+      </main>
     );
-
-    if (!foundExtracurricular) {
-     throw new Error("Ekstrakurikuler tidak ditemukan.");
-    }
-
-    setExtracurricular(foundExtracurricular);
-
-    try {
-     const mediaResponse = await getExtracurricularMedia(extracurricularId);
-
-     setMedia(mediaResponse.data);
-    } catch (mediaError) {
-     console.error("Belum ada dokumentasi ekstrakurikuler:", mediaError);
-
-     setMedia([]);
-    }
-   } catch (error) {
-    console.error("Gagal mengambil data ekstrakurikuler:", error);
-
-    setError("Data ekstrakurikuler tidak ditemukan.");
-   } finally {
-    setLoading(false);
-   }
   }
 
-  void loadData();
- }, [id]);
+  if (error && !extracurricular) {
+    return (
+      <main className="min-h-screen bg-[#f5f5f5] p-6 text-sm text-red-600">
+        {error}
+      </main>
+    );
+  }
 
- if (loading) {
+  if (!extracurricular) {
+    return null;
+  }
+
   return (
-   <main className="flex min-h-96 items-center justify-center">
-    <p className="text-sm text-gray-500">Memuat data...</p>
-   </main>
-  );
- }
+    <main className="min-h-screen bg-[#f5f5f5] p-4 sm:p-5 lg:p-6">
+      <div className="mx-auto w-full max-w-7xl">
+        <div className="mb-4">
+          <Link
+            to="/ekstrakurikuler"
+            className="text-sm text-orange-600 hover:underline"
+          >
+            ← Kembali ke Ekstrakurikuler
+          </Link>
 
- if (error || !extracurricular) {
-  return (
-   <main className="flex min-h-96 items-center justify-center">
-    <p className="text-sm text-red-500">
-     {error || "Data ekstrakurikuler tidak ditemukan."}
-    </p>
-   </main>
-  );
- }
+          <h1 className="mt-3 text-xl font-bold text-gray-950">
+            {extracurricular.name}
+          </h1>
 
- return (
-  <main>
-   <section className="bg-amber-700 py-10 text-center text-white md:py-12">
-    <h1 className="text-2xl font-bold md:text-3xl">
-     Dokumentasi {extracurricular.name}
-    </h1>
-   </section>
+          <p className="mt-1 text-sm text-gray-500">
+            Dokumentasi kegiatan ekstrakurikuler{" "}
+            {extracurricular.name.toLowerCase()}
+          </p>
+        </div>
 
-   <section className="mx-auto max-w-7xl px-6 py-6 md:py-8">
-    {/* Breadcrumb */}
-    <div className="mb-6 flex items-center gap-2 text-sm">
-     <Link
-      to="/ekstrakurikuler"
-      className="text-gray-600 transition hover:text-amber-600"
-     >
-      Extracurricular
-     </Link>
-
-     <span className="text-gray-400">/</span>
-
-     <span className="font-medium text-amber-600">Dokumentasi</span>
-    </div>
-
-    {media.length > 0 ? (
-     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {media.map((item) => (
-       <article
-        key={item.id}
-        className="overflow-hidden rounded-xl bg-white shadow-sm"
-       >
-        {item.type === "IMAGE" ? (
-         <img
-          src={item.url}
-          alt={`Dokumentasi ${extracurricular.name}`}
-          className="h-56 w-full object-cover"
-         />
-        ) : (
-         <video src={item.url} controls className="h-56 w-full object-cover" />
+        {error && (
+          <div
+            role="alert"
+            className="mb-3 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800"
+          >
+            {error}
+          </div>
         )}
-       </article>
-      ))}
-     </div>
-    ) : (
-     <div className="flex min-h-60 items-center justify-center text-center">
-      <p className="text-sm text-gray-500">
-       Belum ada dokumentasi yang tersedia.
-      </p>
-     </div>
-    )}
-   </section>
-  </main>
- );
+
+        <section className="rounded border border-gray-200 bg-white p-4">
+          <h2 className="mb-4 text-base font-bold text-gray-950">
+            Dokumentasi Kegiatan
+          </h2>
+
+          {media.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {media.map((item) => (
+                <article
+                  key={item.id}
+                  className="overflow-hidden rounded-lg border border-gray-200 bg-white"
+                >
+                  {item.type === "IMAGE" ? (
+                    <img
+                      src={item.url}
+                      alt={`Dokumentasi ${extracurricular.name}`}
+                      className="h-52 w-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <video
+                      src={item.url}
+                      controls
+                      className="h-52 w-full bg-black object-contain"
+                    />
+                  )}
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="flex min-h-32 items-center justify-center rounded border border-gray-200 bg-gray-50 p-4 text-center text-sm text-gray-500">
+              Belum ada dokumentasi untuk ekstrakurikuler ini.
+            </div>
+          )}
+        </section>
+      </div>
+    </main>
+  );
 }
 
 export default ExtracurricularDetail;
